@@ -39,15 +39,11 @@ const LUTPaths = [
     'achromatomaly.lut.png',
 ];
 
-function Processor(ctx, width, height, mode = Modes.NORMAL) {
-    this.loaded = false;
+const LUTS = [];
+const LUTImgs = [];
 
-    this.width = width;
-    this.height = height;
-    this.ctx = ctx;
-
-    this.luts = [null,null,null,null,null,null,null,null,null] //9 Modes can be loaded
-
+function Processor(mode = Modes.NORMAL) {
+    this.perf=0.0;
     this.setMode(mode);
 }
 
@@ -61,14 +57,37 @@ Processor.prototype.setMode = function(mode) {
  * @param {boolean} all Whether to load all models
  */
 Processor.prototype.load = function(cb, all = false) {
-    function setLUT(data) {
-        this.luts[ this.model ] = data.data;
-        console.log('Loaded LUT image: %d', this.model);
-
-        cb(true);
+    function setLUT() {
+        if(all) {
+            if(LUTS.length == 9) {
+                for(let l of LUTS) {
+                    if(!l) return;
+                }
+                cb(true);
+            }
+        } else
+            cb(true);
     }
 
-    this.loadLUT(LUTPaths[ this.model], setLUT.bind(this));
+    if(all) {
+        for(const ind in Modes) {
+            console.log('Loading lut', ind);
+            this.loadLUT(LUTPaths[ Modes[ind] ], Modes[ind], setLUT.bind(this));
+        }
+    } else
+        this.loadLUT(LUTPaths[ this.model ], this.model, setLUT.bind(this));
+}
+
+Processor.prototype.process = function(buf, i) {
+    const start = performance.now();
+
+    const ind = Processor.toLUTCoord(buf.data[i*4], buf.data[i*4+1], buf.data[i*4+2]);
+    buf.data[i*4] = LUTS[this.model][ind];
+    buf.data[i*4+1] = LUTS[this.model][ind+1];
+    buf.data[i*4+2] = LUTS[this.model][ind+2];
+
+    this.perf = performance.now() - start;
+    return;
 }
 
 /**
@@ -77,13 +96,13 @@ Processor.prototype.load = function(cb, all = false) {
  * @returns {Array} Resulting array in same mapping, [red, green, blue]
  */
 Processor.prototype.processData = function(rgbArr) {
-    if(this.luts[this.model] !== null) {
+    if(this.curModel) {
         const ind = Processor.toLUTCoord(rgbArr[0], rgbArr[1], rgbArr[2]);
 
         return [
-            this.luts[this.model][ind],
-            this.luts[this.model][ind+1],
-            this.luts[this.model][ind+2],
+            this.curModel[ind],
+            this.curModel[ind+1],
+            this.curModel[ind+2],
         ];
     }
     return rgbArr;
@@ -100,12 +119,10 @@ Processor.toLUTCoord = function(r,g,b) {
     return (y * 512 + x)*4;
 }
 
-Processor.prototype.loadLUT = function(path, cb) {
-    if(!this._imgLoad) {
-        this._imgLoad = new Image();
-    }
+Processor.prototype.loadLUT = function(path, ind, cb) {
+    LUTImgs[ind] = new Image();
 
-    this._imgLoad.onload = function() {
+    LUTImgs[ind].onload = function() {
         const cvs = document.createElement('canvas');
         cvs.width = this.width;
         cvs.height = this.height;
@@ -114,12 +131,12 @@ Processor.prototype.loadLUT = function(path, cb) {
         c.drawImage(this, 0, 0);
 
         const data = c.getImageData(0,0, this.width, this.height);
-        cb(data);
+        LUTS[ind] = data.data;
+        cb();
     }
 
-    this._imgLoad.setAttribute('crossOrigin', 'anonymous');
-    this._imgLoad.src = path;
+    LUTImgs[ind].setAttribute('crossOrigin', 'anonymous');
+    LUTImgs[ind].src = path;
 }
-
 
 export default Processor;
