@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Chromaview</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: black;
+        }
+
+        #root {
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            overflow: hidden;
+        }
+
+        #video-plr {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+        }
+
+        #render-target {
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div id='root'>
+        <video id='video-plr' controls='true' width='480' height='270' loop muted>
+        </video>
+        <canvas id='render-target'></canvas>
+    </div>
+    <script type='text/javascript' src='chromaview.js'></script>
+</body>
+</html>
