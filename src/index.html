@@ -34,15 +34,65 @@
         }
 
         canvas {
-            object-fit: contain;
+            object-fit: cover;
             object-position: center center;
         }
 
         #controls {
-            display: block;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
             position: absolute;
-            top: 5%; left: 5%;
+            bottom: 0; left: 0; right: 0;
+            padding: 0.25rem;
             z-index: 100;
+        }
+
+        select {
+            appearance: none;
+            background: black;
+            background: rgba(0,0,0, 0.5);
+            border: none;
+            border-radius: 0.125rem;
+            font-size: 0.8rem;
+            line-height: 1rem;
+            color: white;
+            height: 1.5rem;
+            padding: 0.25rem;
+            outline: none;
+        }
+
+        select:focus {
+            outline: 2px solid black;
+        }
+
+        #ui-fullscreen {
+            appearance: none;
+            display: block;
+            width: 2rem;
+            height: 2rem;
+            margin: 0;
+            padding: 0.125rem;
+            background: black;
+            background: rgba(0,0,0, 0.5);
+            color: white;
+            outline: none;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.25rem;
+        }
+
+        svg {
+            width: 1em;
+            height: 1em;
+            color: inherit;
+        }
+
+        svg path {
+            color: inherit;
+            fill: currentColor;
         }
     </style>
 </head>
@@ -55,15 +105,20 @@
         <div id='controls'>
             <select id='modesel'>
                 <option value='NORMAL'>Normal</option>
-                <option value='PROTANOPIA'>Protanopia</option>
-                <option value='PROTANOMALY'>Protanomaly</option>
-                <option value='DEUTERANOPIA'>Deuteranopia</option>
-                <option value='DEUTERANOMALY'>Deuteranomaly</option>
-                <option value='TRITANOPIA'>Tritanopia</option>
-                <option value='TRITANOMALY'>Tritanomaly</option>
-                <option value='ACHROMATOPSIA'>Achromatopsia</option>
-                <option value='ACHROMATOMALY'>Achromanomaly</option>
+                <option value='PROTANOMALY'>Protanomaly (Reduced Red)</option>
+                <option value='PROTANOPIA'>Protanopia (No Red)</option>
+                <option value='DEUTERANOMALY'>Deuteranomaly (Reduced Green)</option>
+                <option value='DEUTERANOPIA'>Deuteranopia (No Green)</option>
+                <option value='TRITANOMALY'>Tritanomaly (Reduced Blue)</option>
+                <option value='TRITANOPIA'>Tritanopia (No Blue)</option>
+                <option value='ACHROMATOMALY'>Achromanomaly (Reduced Color)</option>
+                <option value='ACHROMATOPSIA'>Achromatopsia (No color)</option>
             </select>
+            <button type='button' id='ui-fullscreen'>
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="#ffffff" d="M14,14H19V16H16V19H14V14M5,14H10V19H8V16H5V14M8,5H10V10H5V8H8V5M19,8V10H14V5H16V8H19Z" />
+                </svg>
+            </button>
         </div>
     </div>
     <script type='text/javascript' src='chromaview.js'></script>

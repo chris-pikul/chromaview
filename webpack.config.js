@@ -1,6 +1,8 @@
 const Path = require('path');
 const Webpack = require('webpack');
 
+const package = require('./package.json');
+
 const development = {
     entry: Path.resolve(__dirname, 'src', 'index.js'),
     output: {
@@ -58,7 +60,7 @@ const development = {
 const production = {
     entry: Path.resolve(__dirname, 'src', 'index.js'),
     output: {
-        filename: 'chromaview.js',
+        filename: 'chromaview-'+package.version+'.js',
         path: Path.resolve(__dirname, 'dist'),
     },
     mode: 'production',
@@ -67,18 +69,6 @@ const production = {
             {
                 test: /\.html?$/,
                 loader: 'raw-loader',
-            },
-            {
-                test: /\.rs$/,
-                use: [
-                    { loader: 'wasm-loader' },
-                    {
-                        loader: 'rust-native-wasm-loader',
-                        options: {
-                            release: true,
-                        }
-                    },
-                ]
             },
         ]
     },

@@ -4,9 +4,11 @@ if(!navigator.mediaDevices) {
     alert('Browser does not support HTML5 MediaDevices!');
 }
 
+var mediaTrack;
 var width, height;
-var videoEl, cvsProc, ctxProc, cvsTgt, ctxTgt;
+var videoEl, containerEl, cvsProc, ctxProc, cvsTgt, ctxTgt;
 var _perf=0.0;
+var isFullscreen = false;
 
 const Modes = {
     NORMAL: 'NORMAL',
@@ -22,7 +24,7 @@ const Modes = {
 const lutsLoaded = {};
 var curMode = Modes.NORMAL;
 var nextMode = null;
-var loadedInit = false;
+var loadedInit = false, allowRendering = false;
 
 function toLUTCoord(r, g, b) {
     r = Math.floor(r / 4);
@@ -91,6 +93,8 @@ function processFrame() {
 function render(time) {
     if(_perf==0.0) _perf = time;
 
+    if(!allowRendering) return;
+
     processFrame();
 
     const delta = time - _perf;
@@ -105,11 +109,18 @@ function render(time) {
 
 function startRendering() {
     loadedInit = true;
+    allowRendering = true;
     videoEl.play();
     window.requestAnimationFrame(render);
 }
 
 function initProcessing() {
+    if(loadedInit) {
+        //Resuming stream probably
+        startRendering();
+        return;
+    }
+
     cvsProc = document.createElement('canvas');
     cvsProc.width = width;
     cvsProc.height = height;
@@ -133,9 +144,9 @@ function getMediaDevice() {
         }
     }).then(stream => {
         console.log('Got camera media, binding to video');
-        const track = stream.getVideoTracks()[0];
-        if(track) {
-            const settings = track.getSettings();
+        mediaTrack = stream.getVideoTracks()[0];
+        if(mediaTrack) {
+            const settings = mediaTrack.getSettings();
             console.log('Video settings: ', settings);
 
             width = settings.width;
@@ -152,16 +163,78 @@ function getMediaDevice() {
     })
 }
 
-(function() {
-    videoEl = document.getElementById('video-plr');
+function stopStream() {
+    const stream = videoEl.srcObject;
+    const tracks = stream.getTracks();
+    tracks.forEach(track => track.stop());
+    videoEl.srcObject = null;
+}
 
+function toggleFullscreen() {
+    if(isFullscreen) {
+        document.exitFullscreen();
+    } else {
+        containerEl.requestFullscreen()
+            .then(() => isFullscreen = true)
+            .catch(() => isFullscreen = false);
+    }
+}
+
+function setupUI() {
+    containerEl = document.getElementById('root');
+    
     const selEl = document.getElementById('modesel');
     selEl.addEventListener('change', function(evt) {
         const val = evt.target.value;
         changeMode(val);
 
         console.log('Changed', val);
-    })
+    });
+
+    const fsEl = document.getElementById('ui-fullscreen');
+    fsEl.addEventListener('click', toggleFullscreen, false);
+}
+
+
+var evtHidden, evtVisibility;
+if(typeof document.hidden !== 'undefined') {
+    evtHidden = 'hidden';
+    evtVisibility = 'visibilitychange'
+} else if(typeof document.msHidden !== 'undefined') {
+    evtHidden = 'msHidden';
+    evtVisibility = 'msvisibilitychange';
+} else if(typeof document.webkitHidden !== 'undefined') {
+    evtHidden = 'webkitHidden';
+    evtVisibility = 'webkitvisibilitychange';
+}
+
+function handleVisibility() {
+    if(document[evtHidden]) {
+        //Stop requesting media
+        allowRendering = false;
+        stopStream();
+        console.log('Pausing rendering');
+    } else {
+        //Continue processing
+        getMediaDevice();
+        console.log('Resuming rendering');
+    }
+}
+
+function setupDocEvents() {
+    //Visibility event to save resources
+    if(typeof document.addEventListener === 'undefined' || evtHidden === 'undefined') {
+        console.warn('No support for events, or visibility API');
+    } else {
+        document.addEventListener(evtVisibility, handleVisibility, false);
+    }
+}
+
+(function() {
+    videoEl = document.getElementById('video-plr');
+
+    setupDocEvents();
+    setupUI();
 
     getMediaDevice();
 })();
