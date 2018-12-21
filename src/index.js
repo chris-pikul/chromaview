@@ -1,4 +1,4 @@
-import Processor, { Modes } from "./lut";
+//import Processor, { Modes } from "./lut";
 
 if(!navigator.mediaDevices) {
     alert('Browser does not support HTML5 MediaDevices!');
@@ -6,38 +6,105 @@ if(!navigator.mediaDevices) {
 
 var width, height;
 var videoEl, cvsProc, ctxProc, cvsTgt, ctxTgt;
-const lut = new Processor(Modes.NORMAL);
-
 var _perf=0.0;
+
+const Modes = {
+    NORMAL: 'NORMAL',
+    PROTANOPIA: 'PROTANOPIA',
+    PROTANOMALY: 'PROTANOMALY',
+    DEUTERANOPIA: 'DEUTERANOPIA',
+    DEUTERANOMALY: 'DEUTERANOMALY',
+    TRITANOPIA: 'TRITANOPIA',
+    TRITANOMALY: 'TRITANOMALY',
+    ACHROMATOPSIA: 'ACHROMATOPSIA',
+    ACHROMATOMALY: 'ACHROMATOMALY',
+};
+const lutsLoaded = {};
+var curMode = Modes.NORMAL;
+var nextMode = null;
+var loadedInit = false;
+
+function toLUTCoord(r, g, b) {
+    r = Math.floor(r / 4);
+    g = Math.floor(g / 4);
+    b = Math.floor(b / 4);
+
+    let x = (b % 8) * 64 + r;
+    let y = Math.floor(b / 8) * 64 + g;
+
+    return (y * 512 + x)*4;
+}
+
+function loadLUT(mode) {
+    const path = mode.toLowerCase()+'.lut.png';
+    const img = new Image();
+    img.src = path;
+    img.onload = function() {
+        const cvs = document.createElement('canvas');
+        cvs.width = this.width;
+        cvs.height = this.height;
+
+        const c = cvs.getContext('2d');
+        c.drawImage(this, 0, 0);
+
+        lutsLoaded[mode] = c.getImageData(0,0, this.width, this.height).data;
+
+        if(nextMode && curMode != nextMode)
+            curMode = nextMode;
+
+        if(!loadedInit)
+            startRendering();
+
+        console.log('Loaded LUT', mode);
+    };
+}
+
+function changeMode(newMode) {
+    if(!lutsLoaded.hasOwnProperty(newMode)) {
+        //Load the new lut first
+        nextMode = newMode;
+        loadLUT(newMode);
+    } else {
+        curMode = newMode;
+    }
+}
+
+function processFrame() {
+    ctxProc.drawImage(videoEl, 0, 0);
+    const frame = ctxProc.getImageData(0,0, width, height);
+    const bytes = frame.data.length / 4;
+
+    if(loadedInit && lutsLoaded[curMode]) {
+        for(let i=0; i < bytes; i++) {
+            const j = i*4;
+            const r = frame.data[j], g = frame.data[j+1], b = frame.data[j+2];
+            const c = toLUTCoord(r,g,b);
+            frame.data[j] = lutsLoaded[curMode][c];
+            frame.data[j+1] = lutsLoaded[curMode][c+1];
+            frame.data[j+2] = lutsLoaded[curMode][c+2];
+        }
+    }
+
+    ctxTgt.putImageData(frame, 0, 0);
+}
 
 function render(time) {
     if(_perf==0.0) _perf = time;
 
-    loopback();
+    processFrame();
 
     const delta = time - _perf;
     _perf = time;
 
     ctxTgt.font = '12px sans-serif';
     ctxTgt.fillStyle = 'rgba(255,255,255,0.5)';
-    ctxTgt.fillText(`${Math.round(1000/delta)}FPS - Δ${delta.toFixed(1)} - ${lut.perf.toFixed(2)}`, 2, height - 2);
+    ctxTgt.fillText(`${Math.round(1000/delta)}FPS - Δ${delta.toFixed(1)}`, 2, height - 2);
 
     window.requestAnimationFrame(render);
 }
 
-function loopback() {
-    ctxProc.drawImage(videoEl, 0, 0);
-    const frame = ctxProc.getImageData(0,0, width, height);
-    const bytes = frame.data.length / 4;
-
-    for(let i=0; i < bytes; i++) {
-        lut.process(frame, i);
-    }
-
-    ctxTgt.putImageData(frame, 0, 0);
-}
-
-function lutLoaded(success) {
+function startRendering() {
+    loadedInit = true;
     videoEl.play();
     window.requestAnimationFrame(render);
 }
@@ -53,7 +120,7 @@ function initProcessing() {
     cvsTgt.height = height;
     ctxTgt = cvsTgt.getContext('2d');
 
-    lut.load(lutLoaded, true);
+    changeMode(Modes.NORMAL);
 }
 
 function getMediaDevice() {
@@ -85,22 +152,13 @@ function getMediaDevice() {
     })
 }
 
-function findDevices() {
-    navigator.mediaDevices.enumerateDevices()
-        .then(devices => {
-            devices.forEach(device => {
-                console.log(device.kind+": "+device.label+' ['+device.deviceId+']');
-            });
-        });
-}
-
 (function() {
     videoEl = document.getElementById('video-plr');
 
     const selEl = document.getElementById('modesel');
     selEl.addEventListener('change', function(evt) {
         const val = evt.target.value;
-        lut.setMode( Modes[val] );
+        changeMode(val);
 
         console.log('Changed', val);
     })

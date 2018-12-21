@@ -34,7 +34,7 @@
         }
 
         canvas {
-            object-fit: cover;
+            object-fit: contain;
             object-position: center center;
         }
 
@@ -48,7 +48,7 @@
 </head>
 <body>
     <div id='root'>
-        <video id='video-plr' controls='true' width='480' height='270' loop muted>
+        <video id='video-plr' width='480' height='270'>
         </video>
         <canvas id='render-target'></canvas>
 
