@@ -1,0 +1,32 @@
+@use '../utils' as *;
+@use '../palette' as *;
+
+#intro-hero {
+  @include fluid-type(margin padding, 1rem, 5rem);
+
+  border-radius: 0.5rem;
+  background: linear-gradient(-2deg, hsl(200deg 10% 20% / 0) 0%, hsl(200deg 20% 80% / 0.2) 60%, hsl(200deg 5% 20% / 0) 100%);
+  backdrop-filter: blur(10px) contrast(120%) saturate(120%) brightness(70%);
+  border: 2px outset hsl(200deg 20% 80% / 0.1);
+  box-shadow: 2vw 2vw 5vw rgb(100% 100% 100% / 0.1) inset, 
+    1vw 1vw 2vw rgb(0 0 0 / 0.3);
+
+  h1 {
+    @include fluid-type(font-size, 1.75rem, 3rem);
+
+    margin-bottom: 0.25em;
+    padding-bottom: 0.25em;
+
+    text-transform: uppercase;
+    text-align: center;
+
+    border-bottom: 1px solid $clr-blue;
+  }
+
+  h2 {
+    @include fluid-type(font-size, 1.2rem, 2rem);
+
+    margin-bottom: 0.5em;
+    text-align: center;
+  }
+}

@@ -1,5 +1,6 @@
 import NoBr from './nobr'
 
+import './intro-hero.scss';
 export default function IntroHero() {
   return <section id='intro-hero'>
     <h1>Chromaview</h1>

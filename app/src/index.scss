@@ -32,4 +32,9 @@ h3 { @include fluid-type(font-size, 1.2rem, 3rem); }
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+
+  &:has(#intro-hero) {
+    background-image: url('https://source.unsplash.com/random/1920×1080?nature,dark');
+    background-size: cover;
+  }
 }
