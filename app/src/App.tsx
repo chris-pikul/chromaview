@@ -1,6 +1,12 @@
+import { useState } from 'react';
+
+import Intro from './components/intro';
 
 export default function App() {
-  return <div id='chromaview'>
-    <h1>Hello World!</h1>
-  </div>
+  const [ showIntro, setShowIntro ] = useState(true);
+  const hideIntro = () => setShowIntro(false);
+
+  return <>
+    { showIntro && <Intro onDismiss={hideIntro} /> }
+  </>
 }

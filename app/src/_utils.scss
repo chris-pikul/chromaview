@@ -9,14 +9,16 @@
   @return is-number($value) and index('em' 'rem', unit($value)) != null;
 }
 
-@function strip-unit($value) {
-  $striped: math.div($value, $value * 0 + 1);
-
+@function ensure-px($value) {
   @if is-em($value) {
-    @return $striped * $font-root-size;
+    @return math.div($value, $value * 0 + 1) * $font-root-size;
   }
+  @return $value;
+}
 
-  @return $striped;
+@function strip-unit($value) {
+  $valuepx: ensure-px($value);
+  @return math.div($valuepx, $valuepx * 0 + 1);
 }
 
 @mixin fluid-type($properties, $min-value, $max-value, $min-vw: 320px, $max-vw: 1400px) {
@@ -26,8 +28,8 @@
   
   @media screen and (min-width: $min-vw) {
     @each $property in $properties {
-      #{$property}: -webkit-calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
-      #{$property}: calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
+      #{$property}: -webkit-calc(#{ensure-px($min-value)} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
+      #{$property}: calc(#{ensure-px($min-value)} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
     }
   }
 
