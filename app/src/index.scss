@@ -15,8 +15,6 @@ html {
   
   background: $clr-black;
   color: $clr-white;
-  font-family: $font;
-  font-size: $font-root-size;
 }
 
 body {
@@ -24,6 +22,14 @@ body {
   padding: 0;
   width: 100%;
   overflow-x: hidden;
+
+  font-family: $font;
+  font-size: $font-root-size;
+  line-height: 1.5em;
+
+  * {
+    line-height: 1.25em;
+  }
 }
 
 h1 { @include fluid-type(font-size, 2rem, 5rem); }
@@ -33,4 +39,9 @@ h3 { @include fluid-type(font-size, 1.2rem, 3rem); }
 #root {
   display: block;
   position: relative;
+}
+
+.content-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
 }

@@ -18,8 +18,12 @@
   p {
     @include fluid-type(margin-left margin-right, 1rem, 5rem);
     margin-bottom: 1em;
-    
+
     @include fluid-type(font-size, 1rem, 2rem);
     color: darken($clr-white, 10%);
+
+    &.sub {
+      @include fluid-type(font-size, 0.6rem, 1rem);
+    }
   }
 }
