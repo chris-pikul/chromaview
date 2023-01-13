@@ -1,4 +1,5 @@
 @use 'sass:math';
+@use 'palette' as *;
 
 @function is-number($value) {
   @return type-of($value) == 'number';
@@ -12,7 +13,7 @@
   $striped: math.div($value, $value * 0 + 1);
 
   @if is-em($value) {
-    @return $striped * 20;
+    @return $striped * $font-root-size;
   }
 
   @return $striped;

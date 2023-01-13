@@ -1,11 +1,13 @@
 @use 'utils' as *;
+@use 'palette' as *;
 
 @import './reset.scss';
 
 :root {
-  background: black;
-  color: white;
-  font-size: 20px;
+  background: $clr-black;
+  color: $clr-white;
+  font-family: $font;
+  font-size: $font-root-size;
 }
 
 html, body {
