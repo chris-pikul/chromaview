@@ -8,8 +8,8 @@ import './intro.scss';
 export default function Intro({
   onDismiss,
 }:IntroProps) {
-  return <header id='intro' onClick={() => onDismiss()}>
-    <Hero />
+  return <header id='intro'>
+    <Hero onStart={() => onDismiss()} />
 
     <p>Ever wondered what the world looked like through someone else's eyes?
     Maybe you know someone with a color-blind condition, and you yourself having

@@ -1,3 +1,5 @@
+@use 'sass:color' as color;
+
 @use '../utils' as *;
 @use '../palette' as *;
 
@@ -33,5 +35,42 @@
 
     margin-bottom: 0.5em;
     text-align: center;
+  }
+
+  button {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    margin: 1em auto 0;
+    padding: 0.25em 1em;
+
+    @include fluid-type(font-size, 1.2rem, 1.75rem);
+    font-weight: 600;
+    background: color.scale($clr-red, $alpha: -20%);
+    color: $clr-black;
+    border-radius: 0.1em;
+    box-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 0.5);
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: color.scale($clr-red, $alpha: -5%);
+      transform: scale(1.1);
+      box-shadow: 0.5em 0.5em 1em rgb(0 0 0 / 0.7);
+    }
+
+    svg {
+      width: 1em;
+      height: 1em;
+      margin-right: 0.25em;
+      transform: scale(1.2);
+
+      path {
+        fill: currentColor;
+      }
+    }
   }
 }
