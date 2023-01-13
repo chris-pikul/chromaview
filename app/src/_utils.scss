@@ -1,0 +1,38 @@
+@use 'sass:math';
+
+@function is-number($value) {
+  @return type-of($value) == 'number';
+}
+
+@function is-em($value) {
+  @return is-number($value) and index('em' 'rem', unit($value)) != null;
+}
+
+@function strip-unit($value) {
+  $striped: math.div($value, $value * 0 + 1);
+
+  @if is-em($value) {
+    @return $striped * 20;
+  }
+
+  @return $striped;
+}
+
+@mixin fluid-type($properties, $min-value, $max-value, $min-vw: 320px, $max-vw: 1400px) {
+  @each $property in $properties {
+    #{$property}: $min-value;
+  }
+  
+  @media screen and (min-width: $min-vw) {
+    @each $property in $properties {
+      #{$property}: -webkit-calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
+      #{$property}: calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
+    }
+  }
+
+  @media screen and (min-width: $max-vw) {
+    @each $property in $properties {
+      #{$property}: $max-value;
+    }
+  }
+}

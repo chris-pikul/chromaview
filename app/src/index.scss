@@ -1,0 +1,33 @@
+@use 'utils' as *;
+
+@import './reset.scss';
+
+:root {
+  background: black;
+  color: white;
+  font-size: 20px;
+}
+
+html, body {
+  background: inherit;
+  color: inherit;
+  font-size: 1rem;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+h1 { @include fluid-type(font-size, 2rem, 5rem); }
+h2 { @include fluid-type(font-size, 1.75rem, 4.5rem); }
+h3 { @include fluid-type(font-size, 1.3rem, 3.75rem); }
+
+#root {
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
