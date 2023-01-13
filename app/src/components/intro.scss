@@ -2,8 +2,23 @@
 @use '../palette' as *;
 
 #intro {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+
+  background-image: url('https://source.unsplash.com/random/1920×1080?nature,dark');
+  background-size: cover;
+
+  opacity: 1;
+  transition: opacity 1s ease-out;
+
+  &.transition { opacity: 0; }
+
   p {
-    @include fluid-type(margin, 1rem, 5rem);
+    @include fluid-type(margin-left margin-right, 1rem, 5rem);
+    margin-bottom: 1em;
+    
     @include fluid-type(font-size, 1rem, 2rem);
     color: darken($clr-white, 10%);
   }

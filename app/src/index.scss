@@ -6,24 +6,24 @@
 :root {
   --mouse-x: 0.5;
   --mouse-y: 0.5;
+}
 
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  
   background: $clr-black;
   color: $clr-white;
   font-family: $font;
   font-size: $font-root-size;
 }
 
-html, body {
-  background: inherit;
-  color: inherit;
-  font-size: 1rem;
-}
-
 body {
-  width: 100vw;
-  height: 100vh;
+  margin: 0;
+  padding: 0;
+  width: 100%;
   overflow-x: hidden;
-  position: relative;
 }
 
 h1 { @include fluid-type(font-size, 2rem, 5rem); }
@@ -31,13 +31,6 @@ h2 { @include fluid-type(font-size, 1.5rem, 4rem); }
 h3 { @include fluid-type(font-size, 1.2rem, 3rem); }
 
 #root {
-  width: 100%;
+  display: block;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  &:has(#intro-hero) {
-    background-image: url('https://source.unsplash.com/random/1920×1080?nature,dark');
-    background-size: cover;
-  }
 }

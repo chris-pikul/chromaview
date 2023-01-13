@@ -51,6 +51,7 @@
     background: color.scale($clr-red, $alpha: -20%);
     color: $clr-black;
     border-radius: 0.1em;
+    border: none;
     box-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 0.5);
 
     cursor: pointer;

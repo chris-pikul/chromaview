@@ -2,13 +2,15 @@ import Hero from './intro-hero';
 
 export interface IntroProps {
   onDismiss: Function;
+  transition: boolean;
 }
 
 import './intro.scss';
 export default function Intro({
   onDismiss,
+  transition,
 }:IntroProps) {
-  return <header id='intro'>
+  return <header id='intro' className={transition ? 'transition' : ''}>
     <Hero onStart={() => onDismiss()} />
 
     <p>Ever wondered what the world looked like through someone else's eyes?
