@@ -4,6 +4,9 @@
 @import './reset.scss';
 
 :root {
+  --mouse-x: 0.5;
+  --mouse-y: 0.5;
+
   background: $clr-black;
   color: $clr-white;
   font-family: $font;

@@ -5,8 +5,17 @@ import App from './App'
 
 import './index.scss'
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+const rootEl = document.getElementById('root') as HTMLElement;
+
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
 );
+
+document.body.addEventListener('mousemove', evt => {
+  const { clientWidth, clientHeight } = document.documentElement;
+  const widthPerc = (evt.clientX / clientWidth).toPrecision(4);
+  const heightPerc = (evt.clientY / clientHeight).toPrecision(4);
+  document.documentElement.setAttribute('style', `--mouse-x: ${widthPerc}; --mouse-y: ${heightPerc}`);
+});
