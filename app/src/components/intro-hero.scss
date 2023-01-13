@@ -3,6 +3,7 @@
 
 #intro-hero {
   @include fluid-type(margin padding, 1rem, 5rem);
+  @include fluid-type(margin-bottom, 2rem, 8rem);
 
   --glarey: calc(100% * (var(--mouse-y) * -2 + 1));
 
@@ -10,7 +11,7 @@
   background: linear-gradient(-2deg, hsl(200deg 10% 20% / 0) 0%, hsl(200deg 20% 80% / 0.1) var(--glarey), hsl(200deg 5% 20% / 0) 100%);
   backdrop-filter: blur(10px) contrast(120%) saturate(120%) brightness(70%);
   border: 2px outset hsl(200deg 20% 80% / 0.1);
-  box-shadow: 2vw 2vw 5vw rgb(100% 100% 100% / 0.1) inset, 
+  box-shadow: 2vw 2vw 5vw rgb(100% 100% 100% / 0.15) inset, 
     1vw 1vw 2vw rgb(0 0 0 / 0.3);
 
   transform: rotateY(calc(20deg * (var(--mouse-x) - 0.5)));
