@@ -55,6 +55,7 @@ export default class Processor {
     this.stop = this.stop.bind(this);
     this.process = this.process.bind(this);
     this.render = this.render.bind(this);
+    this.loadLUTFromURL = this.loadLUTFromURL.bind(this);
     this.setCanvas = this.setCanvas.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.updateVisibility = this.updateVisibility.bind(this);
@@ -71,14 +72,8 @@ export default class Processor {
       willReadFrequently: true,
     });
 
-    // Start with normal LUT
+    // Start with a do-nothing LUT
     this.#lut = new LUT();
-
-    console.log(`TEST LUT`, 
-      this.#lut.process(255, 0, 0),
-      this.#lut.process(0, 255, 0),
-      this.#lut.process(0, 0, 255)
-    );
 
     document.addEventListener('visibilitychange', this.updateVisibility);
     this.updateVisibility();
@@ -240,6 +235,17 @@ export default class Processor {
 
     // Request next frame
     requestAnimFrame(this.render);
+  }
+
+  loadLUTFromURL(url:(string|URL)) {
+    LUT.loadLUTImage(url)
+      .then(lut => {
+        this.#lut = lut;
+        console.log('Received LUT from async loading');
+      })
+      .catch(err => {
+        console.error('Bad LUT received', err);
+      });
   }
 
   setCanvas(canvas:HTMLCanvasElement) {

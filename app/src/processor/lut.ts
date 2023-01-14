@@ -104,11 +104,11 @@ export default class LUT {
       throw new Error(`Coordinate ${coord} is out of range for this LUT data array`);
   }
 
-  public static loadLUTImage(imgURL:string):Promise<LUT> {
+  public static loadLUTImage(imgURL:(string|URL)):Promise<LUT> {
     return new Promise((resolve, reject) => {
       let url:URL, img:HTMLImageElement;
       try {
-        url = new URL(imgURL);
+        url = new URL(imgURL, window.location.origin);
         img = new Image();
         img.src = url.toString();
 
