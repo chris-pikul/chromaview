@@ -51,14 +51,21 @@
       }
 
       button.icon {
-        width: 1em;
-        height: 1em;
-        line-height: 1em;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-around;
+        align-items: center;
+
+        width: 1.2em;
+        height: 1.2em;
         font-size: 1em;
         background: rgb(0 0 0 / 0.5);
         color: $clr-white;
         border-radius: 0.2em;
-        border: 1px solid $clr-white;
+        border: none;
+
+        cursor: pointer;
+        pointer-events: fill;
       }
     }
   }

@@ -15,6 +15,7 @@ export default function CameraComponent({
   const canvasRef = useRef<HTMLCanvasElement|null>(null);
   const processorRef = useRef<Processor|null>(null);
 
+  const [ fullscreen, setFullscreen ] = useState(false);
   const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
 
   const cycleMode = () => {
@@ -51,9 +52,17 @@ export default function CameraComponent({
     }
   };
 
+  // Triggered when window goes in/out of fullscreen
+  const handleFullscreen = () => {
+    setFullscreen(('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
+      ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
+      ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null));
+  }
+
   // On component mounted
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    window.addEventListener('fullscreenchange', handleFullscreen);
 
     if(canvasRef.current) {
       console.info('React received canvas element as mounted');
@@ -68,6 +77,7 @@ export default function CameraComponent({
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('fullscreenchange', handleFullscreen);
     };
   }, [ canvasRef ]);
 
@@ -81,12 +91,41 @@ export default function CameraComponent({
     }
   }, [ transitionedIn ]);
 
+  const toggleFullscreen = (evt?:Event) => {
+    // Prevent clickthrough
+    if(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
+
+    // Exit fullscreen
+    if(('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
+      ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
+      ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null)) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen();
+    }
+  };
+
   return <div id='camera'>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleMode}>
       <div id='camera-tools-bottom'>
         <span id='camera-curmode'>{ curMode === null ? 'Normal (Unchanged)' : curMode.name }</span>
-        <button className='icon'>F</button>
+
+        <button className='icon' title={fullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={(evt) => toggleFullscreen(evt as unknown as Event)}>
+          { fullscreen === true ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+              <path d="M16.6 38v-6.7H10v-3h9.7V38Zm11.7 0v-9.7H38v3h-6.7V38ZM10 19.6v-3h6.7V10h3v9.7Zm18.4 0V10h3v6.7H38v3Z"/>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+              <path d="M10 38v-9.7h3V35h6.7v3Zm0-18.4V10h9.7v3H13v6.7ZM28.4 38v-3H35v-6.7h3V38ZM35 19.6V13h-6.7v-3H38v9.7Z"/>
+            </svg>
+          ) }
+          
+        </button>
       </div>
     </div>
   </div>

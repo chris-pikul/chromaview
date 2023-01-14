@@ -36,6 +36,17 @@ h1 { @include fluid-type(font-size, 2rem, 5rem); }
 h2 { @include fluid-type(font-size, 1.5rem, 4rem); }
 h3 { @include fluid-type(font-size, 1.2rem, 3rem); }
 
+svg {
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  color: inherit;
+
+  path {
+    fill: currentColor;
+  }
+}
+
 #root {
   display: block;
   position: relative;
