@@ -19,10 +19,12 @@ const requestAnimFrame:((cb:FrameRequestCallback) => number) = (() => {
 })();
 
 export default class Processor {
+  visible = false;
   loading:boolean = false;
   requested:boolean = false;
   permitted:boolean = false;
   trackSettings:(MediaTrackSettings|null) = null;
+  running:boolean = false;
 
   lastTime = 0;
   deltaTime = 0;
@@ -43,14 +45,18 @@ export default class Processor {
   #domWidth = 320;
   #domHeight = 240;
 
+  
+
   constructor() {
     this.load = this.load.bind(this);
     this.checkAlreadyPermitted = this.checkAlreadyPermitted.bind(this);
     this.start = this.start.bind(this);
+    this.stop = this.stop.bind(this);
     this.process = this.process.bind(this);
     this.render = this.render.bind(this);
     this.setCanvas = this.setCanvas.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.updateVisibility = this.updateVisibility.bind(this);
 
     this.#video = document.createElement('video');
     this.#video.width = this.#videoWidth = 320;
@@ -63,6 +69,9 @@ export default class Processor {
       alpha: false,
       willReadFrequently: true,
     });
+
+    document.addEventListener('visibilitychange', this.updateVisibility);
+    this.updateVisibility();
 
     console.log('Processor constructed, checking if already permitted...');
     this.checkAlreadyPermitted();
@@ -100,7 +109,7 @@ export default class Processor {
 
   load() {
     // Shortcut if already trying to load
-    if(this.loading || this.requested || this.#stream) return;
+    if(this.loading || this.#stream) return;
 
     // Only work if mediaDevices is supported in browser
     if(navigator && 'mediaDevices' in navigator) {
@@ -159,11 +168,23 @@ export default class Processor {
   start() {
     console.info('Starting rendering and processing loop');
     this.lastTime = Date.now();
+    this.running = true;
     requestAnimFrame(this.render);
   }
 
+  stop() {
+    console.log('Stopping the process');
+
+    this.running = false;
+
+    if(this.#stream) {
+      this.#stream.getTracks().forEach(track => track.stop());
+      this.#stream = null;
+    }
+  }
+
   process() {
-    if(this.#video && this.#bufferCanvas && this.#bufferCTX) {
+    if(this.running && this.#video && this.#bufferCanvas && this.#bufferCTX) {
       this.#bufferCanvas.width = this.#videoWidth;
       this.#bufferCanvas.height = this.#videoHeight;
       
@@ -186,6 +207,8 @@ export default class Processor {
   }
 
   render() {
+    if(!this.running) return;
+
     this.process();
 
     if(this.#displayCanvas && this.#displayCTX) {
@@ -233,5 +256,17 @@ export default class Processor {
     this.#domHeight = bounds.height;
 
     console.info('Received new bounding size from React', bounds);
+  }
+
+  updateVisibility() {
+    this.visible = document?.visibilityState === 'visible' ?? false;
+
+    if(this.running && !this.visible) {
+      console.info('Visibility changed to hidden, stopping rendering');
+      this.stop();
+    } else if(!this.running && this.visible) {
+      console.info('Visibility resumed to visible, starting rendering again');
+      this.load();
+    }
   }
 }
