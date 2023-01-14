@@ -49,6 +49,8 @@ export default class Processor {
   #domAspect = (320 / 240);
 
   #lut:(LUT|null) = null;
+  #loadingLUT = false;
+  #loadNextLut:(string|URL|null) = null;
 
   constructor() {
     this.load = this.load.bind(this);
@@ -57,6 +59,7 @@ export default class Processor {
     this.stop = this.stop.bind(this);
     this.process = this.process.bind(this);
     this.render = this.render.bind(this);
+    this.changeLUT = this.changeLUT.bind(this);
     this.loadLUTFromURL = this.loadLUTFromURL.bind(this);
     this.setCanvas = this.setCanvas.bind(this);
     this.handleResize = this.handleResize.bind(this);
@@ -127,9 +130,15 @@ export default class Processor {
       // Ask for a camera stream
       navigator.mediaDevices.getUserMedia({
         video: {
+          width: {
+            max: 1920,
+          },
+          height: {
+            max: 1080,
+          },
           facingMode: 'environment',
         },
-      }).then(stream => {
+      } as MediaStreamConstraints).then(stream => {
         console.info('Received response from mediaDevices');
 
         // Ensure we have video tracks
@@ -244,7 +253,21 @@ export default class Processor {
     requestAnimFrame(this.render);
   }
 
+  changeLUT(url?:(string|URL|null)) {
+    if(!url) {
+      this.#lut = new LUT();
+    } else {
+      this.loadLUTFromURL(url);
+    }
+  }
+
   loadLUTFromURL(url:(string|URL)) {
+    if(this.#loadingLUT) {
+      this.#loadNextLut = url;
+      return;
+    }
+
+    this.#loadingLUT = true;
     LUT.loadLUTImage(url)
       .then(lut => {
         this.#lut = lut;
@@ -252,6 +275,18 @@ export default class Processor {
       })
       .catch(err => {
         console.error('Bad LUT received', err);
+      })
+      .finally(() => {
+        this.#loadingLUT = false;
+
+        // Continue to the next requested lut load if we have one
+        if(this.#loadNextLut !== null) {
+          const next = this.#loadNextLut;
+          this.#loadNextLut = null;
+          // Possible race conditions here, if only I finished async-synchro
+          this.loadLUTFromURL(next);
+          return;
+        }
       });
   }
 

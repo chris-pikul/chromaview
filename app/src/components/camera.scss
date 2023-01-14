@@ -1,3 +1,6 @@
+@use '../utils' as *;
+@use '../palette' as *;
+
 #camera {
   position: fixed;
   top: 0;
@@ -13,5 +16,50 @@
     right: 0;
     bottom: 0;
     left: 0;
+  }
+
+  #camera-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+
+    #camera-tools-bottom {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+      
+      @include fluid-type(margin gap, 0.5rem, 2rem);
+      @include fluid-type(font-size, 1rem, 2rem);
+
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+      #camera-curmode {
+        flex: 1;
+        padding: 0 0.5em;
+        font-size: 1em;
+        background: rgb(0 0 0 / 0.3);
+        border-radius: 0.2em;
+        user-select: none;
+        cursor: pointer;
+      }
+
+      button.icon {
+        width: 1em;
+        height: 1em;
+        line-height: 1em;
+        font-size: 1em;
+        background: rgb(0 0 0 / 0.5);
+        color: $clr-white;
+        border-radius: 0.2em;
+        border: 1px solid $clr-white;
+      }
+    }
   }
 }
