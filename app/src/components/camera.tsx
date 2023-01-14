@@ -14,7 +14,6 @@ export default function CameraComponent({
 
   const handleResize = () => {
     const bounds = document.body.getBoundingClientRect();
-    console.log('Resized', bounds);
 
     if(processorRef.current)
       processorRef.current.handleResize(bounds);
@@ -26,11 +25,12 @@ export default function CameraComponent({
     handleResize();
 
     if(canvasRef.current) {
+      console.info('React received canvas element as mounted');
+
       if(!processorRef.current)
         processorRef.current = new Processor();
 
       processorRef.current.setCanvas(canvasRef.current);
-      console.log('Canvas element mounted');
     }
 
     return () => {
@@ -43,7 +43,8 @@ export default function CameraComponent({
     if(transitionedIn) {
       if(processorRef.current)
         processorRef.current.load();
-      console.log('Finished transition in');
+
+      console.info('React detected end of fade-in transition');
     }
   }, [ transitionedIn ]);
 

@@ -31,8 +31,12 @@ export default class Processor {
 
   #stream:(MediaStream|null) = null;
   #video:(HTMLVideoElement|null) = null;
-  #canvas:(HTMLCanvasElement|null) = null;
-  #ctx:(CanvasRenderingContext2D|null) = null;
+
+  #bufferCanvas:(HTMLCanvasElement|null) = null;
+  #bufferCTX:(CanvasRenderingContext2D|null) = null;
+
+  #displayCanvas:(HTMLCanvasElement|null) = null;
+  #displayCTX:(CanvasRenderingContext2D|null) = null;
 
   #videoWidth = 320;
   #videoHeight = 240;
@@ -43,6 +47,7 @@ export default class Processor {
     this.load = this.load.bind(this);
     this.checkAlreadyPermitted = this.checkAlreadyPermitted.bind(this);
     this.start = this.start.bind(this);
+    this.process = this.process.bind(this);
     this.render = this.render.bind(this);
     this.setCanvas = this.setCanvas.bind(this);
     this.handleResize = this.handleResize.bind(this);
@@ -51,12 +56,20 @@ export default class Processor {
     this.#video.width = this.#videoWidth = 320;
     this.#video.height = this.#videoHeight = 320;
 
-    console.log('Constructed checking if already permitted...');
+    this.#bufferCanvas = document.createElement('canvas');
+    this.#bufferCanvas.width = this.#videoWidth;
+    this.#bufferCanvas.height = this.#videoHeight;
+    this.#bufferCTX = this.#bufferCanvas.getContext('2d', {
+      alpha: false,
+      willReadFrequently: true,
+    });
+
+    console.log('Processor constructed, checking if already permitted...');
     this.checkAlreadyPermitted();
   }
 
   checkAlreadyPermitted():void {
-    console.log('Checking if camera is already permitted');
+    console.log('Checking if camera is already permitted...');
 
     // Enumerate devices to see if permission already given
     if('mediaDevices' in navigator) {
@@ -80,21 +93,20 @@ export default class Processor {
           this.permitted = false;
         });
     } else {
+      console.error('No support for MediaDevices in navigator!');
       this.permitted = false;
     }
   }
 
   load() {
-    console.info('Checking if load allowed', this.loading);
-
     // Shortcut if already trying to load
-    if(this.loading) return;
+    if(this.loading || this.requested || this.#stream) return;
 
     // Only work if mediaDevices is supported in browser
     if(navigator && 'mediaDevices' in navigator) {
       // Catch race conditions and React's strict mode
       this.loading = true;
-      console.log('Requesting camera permission');
+      console.log('Requesting camera permission...');
 
       // Ask for a camera stream
       navigator.mediaDevices.getUserMedia({
@@ -102,6 +114,8 @@ export default class Processor {
           facingMode: 'environment',
         },
       }).then(stream => {
+        console.info('Received response from mediaDevices');
+
         // Ensure we have video tracks
         if(stream.getVideoTracks().length > 0) {
           this.permitted = true;
@@ -119,6 +133,8 @@ export default class Processor {
             this.#video.srcObject = this.#stream;
             this.#video.play();
 
+            console.info('Stream was attached to internal video element');
+
             // Start processing!
             this.start();
           } else {
@@ -132,25 +148,29 @@ export default class Processor {
       }).finally(() => {
         this.requested = true;
         this.loading = false;
-        console.log('Finished loading sequence');
+        console.info('Finished loading sequence');
       });
+    } else {
+      // !navigator && mediaDevices in navigator
+      console.error('No support for MediaDevices in navigator');
     }
   }
 
   start() {
-    console.log('Start called on Processor');
+    console.info('Starting rendering and processing loop');
     this.lastTime = Date.now();
     requestAnimFrame(this.render);
   }
 
-  render() {
-    if(this.#canvas && this.#ctx && this.#video && this.#stream) {
-      this.#canvas.width = this.#domWidth;
-      this.#canvas.height = this.#domHeight;
-      this.#ctx.drawImage(this.#video, 0, 0, this.#domWidth, this.#domHeight);
+  process() {
+    if(this.#video && this.#bufferCanvas && this.#bufferCTX) {
+      this.#bufferCanvas.width = this.#videoWidth;
+      this.#bufferCanvas.height = this.#videoHeight;
+      
+      this.#bufferCTX.drawImage(this.#video, 0, 0, this.#videoWidth, this.#videoHeight);
 
       // Dummy manipulate
-      const frame = this.#ctx.getImageData(0, 0, this.#domWidth, this.#domHeight);
+      const frame = this.#bufferCTX.getImageData(0, 0, this.#videoWidth, this.#videoHeight);
       const { data } = frame;
       for(let i = 0; i < data.length; i += 4) {
         const red = data[i];
@@ -161,12 +181,25 @@ export default class Processor {
         data[i + 1] = blue;
         data[i + 2] = red;
       }
-      this.#ctx.putImageData(frame, 0, 0);
+      this.#bufferCTX.putImageData(frame, 0, 0);
+    }
+  }
+
+  render() {
+    this.process();
+
+    if(this.#displayCanvas && this.#displayCTX) {
+      this.#displayCanvas.width = this.#domWidth;
+      this.#displayCanvas.height = this.#domHeight;
+
+      // Copy the buffer and up-scale it to the display
+      if(this.#bufferCanvas)
+        this.#displayCTX.drawImage(this.#bufferCanvas, 0, 0, this.#domWidth, this.#domHeight);
 
       // Draw the FPS clock
-      this.#ctx.font = '10px Arial';
-      this.#ctx.fillStyle = 'white';
-      this.#ctx.fillText(`${this.fpsCount.toString().padStart(3, ' ')}FPS | Δ${this.deltaTime.toPrecision(2).padStart(4, ' ')}/ms`, 5, 15);
+      this.#displayCTX.font = '10px Arial';
+      this.#displayCTX.fillStyle = 'white';
+      this.#displayCTX.fillText(`${this.fpsCount.toString().padStart(3, ' ')}FPS | Δ${this.deltaTime.toPrecision(2).padStart(4, ' ')}/ms`, 5, 15);
     }
 
     // Time keeping FPS/Delta counters
@@ -185,19 +218,20 @@ export default class Processor {
 
   setCanvas(canvas:HTMLCanvasElement) {
     // Clear old canvas info if we need to
-    this.#canvas = canvas;
-    this.#ctx = this.#canvas.getContext('2d', {
+    this.#displayCanvas = canvas;
+    this.#displayCTX = this.#displayCanvas.getContext('2d', {
       alpha: false,
-      willReadFrequently: true,
     });
-    if(!this.#ctx)
+    if(!this.#displayCTX)
       throw new Error(`Unable to get canvas 2D rendering context`);
 
-    console.log('Applied new canvas element');
+    console.info('Received and applied new canvas from React');
   }
 
   handleResize(bounds:DOMRect) {
     this.#domWidth = bounds.width;
     this.#domHeight = bounds.height;
+
+    console.info('Received new bounding size from React', bounds);
   }
 }
