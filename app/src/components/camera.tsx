@@ -30,8 +30,14 @@ export default function CameraComponent({
 
   // Watch when mode changes
   useEffect(() => {
-    if(processorRef.current)
+    if(processorRef.current) {
       processorRef.current.changeLUT(curMode?.url);
+
+      if(curMode && curMode.acuityDegrade)
+        processorRef.current.acuity = Math.max(1, curMode.acuityDegrade);
+      else
+        processorRef.current.acuity = 1;
+    }
   }, [ curMode ]);
 
   // Triggered when parent gets resized because of window resizing

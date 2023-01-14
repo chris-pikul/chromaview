@@ -1,6 +1,7 @@
 export type VisionMode = {
   name: string;
   url: string;
+  acuityDegrade?: number;
 };
 
 export const VisionModes:Record<string, VisionMode> = {
@@ -36,13 +37,16 @@ export const VisionModes:Record<string, VisionMode> = {
     name: 'Tritanopia',
     url: '/LUTs/tritanopia.lut.png'
   },
+
   canine: {
     name: 'Canine (Dog)',
-    url: '/LUTs/animals/canine.lut.png'
+    url: '/LUTs/animals/canine.lut.png',
+    acuityDegrade: 4,
   },
   feline: {
     name: 'Feline (Cat)',
-    url: '/LUTs/animals/feline.lut.png'
-  }
+    url: '/LUTs/animals/feline.lut.png',
+    acuityDegrade: 2.5,
+  },
 };
 export type EVisionMode = keyof typeof VisionModes;

@@ -27,6 +27,8 @@ export default class Processor {
   trackSettings:(MediaTrackSettings|null) = null;
   running:boolean = false;
 
+  acuity:number = 2;
+
   lastTime = 0;
   deltaTime = 0;
   fpsCount = 0;
@@ -205,6 +207,9 @@ export default class Processor {
       this.#bufferCanvas.width = this.#videoWidth;
       this.#bufferCanvas.height = this.#videoHeight;
       
+      if(this.acuity > 1) 
+        this.#bufferCTX.filter = `blur(${Math.trunc((this.#videoWidth / this.#domWidth) * (this.acuity * this.acuity))}px)`;
+
       this.#bufferCTX.drawImage(this.#video, 0, 0, this.#videoWidth, this.#videoHeight);
 
       // Use current LUT if available
