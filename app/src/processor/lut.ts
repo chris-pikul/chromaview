@@ -103,4 +103,64 @@ export default class LUT {
     if((coord + 2) >= this.data.length)
       throw new Error(`Coordinate ${coord} is out of range for this LUT data array`);
   }
+
+  public static loadLUTImage(imgURL:string):Promise<LUT> {
+    return new Promise((resolve, reject) => {
+      let url:URL, img:HTMLImageElement;
+      try {
+        url = new URL(imgURL);
+        img = new Image();
+        img.src = url.toString();
+
+        console.log(`Loading LUT image from "${img.src}"...`);
+      } catch(err) {
+        reject(err);
+        return;
+      }
+      img.onload = () => {
+        console.log(`Loaded LUT image from "${img.src}"`);
+
+        // Make dummy canvas to steal the data
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext('2d');
+        if(!ctx)
+          return reject(new Error(`cannot get context of canvas`));
+
+        ctx.drawImage(img, 0, 0);
+
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+        // Pass on to the load from image data method
+        LUT.fromImageData(url.pathname, data)
+          .then(resolve)
+          .catch(reject);
+      };
+
+      img.onabort = reject;
+      img.onerror = reject;
+    });
+  }
+
+  public static fromImageData(name:string, buf:Uint8ClampedArray):Promise<LUT> {
+    return new Promise((resolve, reject) => {
+      // My figure is that LUTS are always 64x64 blocks to make them up.
+      const lut = new LUT(name);
+
+      for(let i=0; i < lut.data.length; i++) {
+        const [ inR, inG, inB ] = integerToRGB(i);
+
+        const imgCoord = LUT.getImageCoord(inR, inG, inB);
+        const outR = buf[imgCoord];
+        const outG = buf[imgCoord + 1];
+        const outB = buf[imgCoord + 2];
+
+        lut.data[i] = rgbToInteger(outR, outG, outB); 
+      }
+
+      resolve(lut);
+    });
+  }
 }
