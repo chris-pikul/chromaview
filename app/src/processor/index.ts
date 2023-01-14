@@ -11,6 +11,7 @@
  * Load should see if we are already playing and if so just defer out. Otherwise
  * try and start the camera work and ask for permissions.
  */
+import LUT from './lut';
 
 const requestAnimFrame:((cb:FrameRequestCallback) => number) = (() => {
   if(window && 'requestAnimationFrame' in window)
@@ -45,7 +46,7 @@ export default class Processor {
   #domWidth = 320;
   #domHeight = 240;
 
-  
+  #lut:(LUT|null) = null;
 
   constructor() {
     this.load = this.load.bind(this);
@@ -69,6 +70,15 @@ export default class Processor {
       alpha: false,
       willReadFrequently: true,
     });
+
+    // Start with normal LUT
+    this.#lut = new LUT();
+
+    console.log(`TEST LUT`, 
+      this.#lut.process(255, 0, 0),
+      this.#lut.process(0, 255, 0),
+      this.#lut.process(0, 0, 255)
+    );
 
     document.addEventListener('visibilitychange', this.updateVisibility);
     this.updateVisibility();
@@ -190,19 +200,12 @@ export default class Processor {
       
       this.#bufferCTX.drawImage(this.#video, 0, 0, this.#videoWidth, this.#videoHeight);
 
-      // Dummy manipulate
-      const frame = this.#bufferCTX.getImageData(0, 0, this.#videoWidth, this.#videoHeight);
-      const { data } = frame;
-      for(let i = 0; i < data.length; i += 4) {
-        const red = data[i];
-        const green = data[i + 1];
-        const blue = data[i + 2];
-
-        data[i] = green;
-        data[i + 1] = blue;
-        data[i + 2] = red;
+      // Use current LUT if available
+      if(this.#lut) {
+        const frame = this.#bufferCTX.getImageData(0, 0, this.#videoWidth, this.#videoHeight);
+        this.#lut.processBuffer(frame.data);
+        this.#bufferCTX.putImageData(frame, 0, 0);
       }
-      this.#bufferCTX.putImageData(frame, 0, 0);
     }
   }
 
