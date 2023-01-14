@@ -13,10 +13,13 @@ export default function CameraComponent({
   const processorRef = useRef<Processor|null>(null);
 
   const handleResize = () => {
-    const bounds = document.body.getBoundingClientRect();
+    const camEL = document.getElementById('camera');
+    if(camEL) {
+      const bounds = camEL.getBoundingClientRect();
 
-    if(processorRef.current)
-      processorRef.current.handleResize(bounds);
+      if(processorRef.current)
+        processorRef.current.handleResize(bounds);
+    }
   };
 
   // On component mounted

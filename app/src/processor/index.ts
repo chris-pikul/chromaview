@@ -43,8 +43,10 @@ export default class Processor {
 
   #videoWidth = 320;
   #videoHeight = 240;
+  #videoAspect = (320 / 240);
   #domWidth = 320;
   #domHeight = 240;
+  #domAspect = (320 / 240);
 
   #lut:(LUT|null) = null;
 
@@ -144,6 +146,7 @@ export default class Processor {
           if(this.#video) {
             this.#video.width = this.#videoWidth = this.trackSettings.width ?? 320;
             this.#video.height = this.#videoHeight = this.trackSettings.height ?? 240;
+            this.#videoAspect = this.#videoWidth / this.#videoHeight;
             this.#video.srcObject = this.#stream;
             this.#video.play();
 
@@ -214,8 +217,12 @@ export default class Processor {
       this.#displayCanvas.height = this.#domHeight;
 
       // Copy the buffer and up-scale it to the display
-      if(this.#bufferCanvas)
-        this.#displayCTX.drawImage(this.#bufferCanvas, 0, 0, this.#domWidth, this.#domHeight);
+      if(this.#bufferCanvas) {
+        // Maintain video aspect ratio, centered in canvas
+        const dispHeight = this.#domWidth * (1.0 / this.#videoAspect);
+        const offsetY = (this.#domHeight - dispHeight) / 2;
+        this.#displayCTX.drawImage(this.#bufferCanvas, 0, offsetY, this.#domWidth, dispHeight);
+      }
 
       // Draw the FPS clock
       this.#displayCTX.font = '10px Arial';
@@ -251,6 +258,9 @@ export default class Processor {
   setCanvas(canvas:HTMLCanvasElement) {
     // Clear old canvas info if we need to
     this.#displayCanvas = canvas;
+    this.#displayCanvas.width = this.#domWidth;
+    this.#displayCanvas.height = this.#domHeight;
+
     this.#displayCTX = this.#displayCanvas.getContext('2d', {
       alpha: false,
     });
@@ -263,8 +273,7 @@ export default class Processor {
   handleResize(bounds:DOMRect) {
     this.#domWidth = bounds.width;
     this.#domHeight = bounds.height;
-
-    console.info('Received new bounding size from React', bounds);
+    this.#domAspect = this.#domWidth / this.#domHeight;
   }
 
   updateVisibility() {
