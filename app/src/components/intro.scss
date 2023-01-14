@@ -8,7 +8,9 @@
   align-items: center;
 
   background-image: url('https://source.unsplash.com/random/1920×1080?nature,dark');
+  background-position: center center;
   background-size: cover;
+  background-attachment: fixed;
 
   opacity: 1;
   transition: opacity 1s ease-out;
