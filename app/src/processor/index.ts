@@ -208,7 +208,7 @@ export default class Processor {
       this.#bufferCanvas.height = this.#videoHeight;
       
       if(this.acuity > 1) 
-        this.#bufferCTX.filter = `blur(${Math.trunc((this.#videoWidth / this.#domWidth) * (this.acuity * this.acuity))}px)`;
+        this.#bufferCTX.filter = `blur(${Math.trunc(Math.min(this.#videoWidth / this.#domWidth, 0.66) * (this.acuity * this.acuity))}px)`;
 
       this.#bufferCTX.drawImage(this.#video, 0, 0, this.#videoWidth, this.#videoHeight);
 
