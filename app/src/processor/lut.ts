@@ -10,19 +10,47 @@ export default class LUT {
   // The number of bytes/channels in a pixel, we drop the alpha 
   static readonly NUM_BYTES:number = 3;
 
-  // The number of pixels in one dimension of a LUT
+  // The number of pixels in one dimension of a Image LUT
   static readonly PIXEL_SIZE:number = 512;
 
   /**
-   * Calculates the coordinate within this LUT's data for the corisponding
-   * color given.
+   * Given a R/G/B channel info, find the indice within this LUTs data to get
+   * that first resulting byte of the new color.
    * 
    * @param r Red channel byte
    * @param g Green channel byte
    * @param b Blue channel byte
    * @returns New number of the lut pixel coordinate
    */
-  static getCoord(r:number, g: number, b:number):number {
+  static getCoord(r:number, g:number, b:number):number {
+    return (r * 255 * 255) + (g * 255) + b;
+  }
+
+  /**
+   * Given a coordinate from {@link LUT.getCoord} get the resulting RGB that
+   * would deliver that initial coordinate.
+   * 
+   * @param coord Integer coordinate
+   * @returns RGB tuple
+   */
+  static rgbFromCoord(coord:number):RGB {
+    return [
+      coord / (255 * 255),
+      (coord / 255) % 255,
+      coord % 255,
+    ];
+  }
+
+  /**
+   * Calculates the coordinate within a given 3D image LUT as if it was a
+   * single-depth array.
+   * 
+   * @param r Red channel byte
+   * @param g Green channel byte
+   * @param b Blue channel byte
+   * @returns New number of the image LUT coordinate
+   */
+  static getImageCoord(r:number, g: number, b:number):number {
     r = Math.trunc(r / 4);
     g = Math.trunc(g / 4);
     b = Math.trunc(b / 4);
@@ -33,13 +61,31 @@ export default class LUT {
     return (y * 512 + x) * 4;
   }
 
-  data: Uint8ClampedArray;
+  /**
+   * Given name for this LUT
+   */
+  readonly name: string;
 
-  constructor() {
+  /**
+   * Bytes of color information. Represented as 3-byte groupings mapping to
+   * Red, Green, and Blue.
+   */
+  readonly data: Uint8ClampedArray;
+
+  constructor(name:string) {
+    this.toString = this.toString.bind(this);
     this.processPixel = this.processPixel.bind(this);
     this.processBuffer = this.processBuffer.bind(this);
+    this.setPixel = this.setPixel.bind(this);
 
-    this.data = new Uint8ClampedArray(LUT.PIXEL_SIZE * LUT.PIXEL_SIZE * LUT.NUM_BYTES);
+    this.name = name;
+
+    // Total data is each available color in each channel
+    this.data = new Uint8ClampedArray(255 * 255 * 255);
+  }
+
+  toString():string {
+    return this.name;
   }
 
   /**
@@ -72,5 +118,11 @@ export default class LUT {
       buf[i + 1] = this.data[coord + 1];
       buf[i + 2] = this.data[coord + 2];
     }
+  }
+
+  protected setPixel(coord:number, r:number, g:number, b:number) {
+    this.data[coord] = r;
+    this.data[coord + 1] = g;
+    this.data[coord + 2] = b;
   }
 }
