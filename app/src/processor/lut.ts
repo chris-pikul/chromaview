@@ -53,7 +53,7 @@ export default class LUT {
     this.name = name;
 
     // Total data is each available color in each channel
-    this.data = new Uint32Array(0xFFFFFF);
+    this.data = new Uint32Array(0xFFFFFF + 1);
     for(let i=0; i < this.data.length; i++)
       this.data[i] = i;
   }
@@ -71,6 +71,9 @@ export default class LUT {
    * @returns New RGB tuple of the resulting colors
    */
   process(r:number, g:number, b:number):RGB {
+    if(r === 255 && g === 255 && b === 255)
+      return [255, 255, 255];
+    
     const int = rgbToInteger(r, g, b);
     const result = this.data[int];
 
@@ -86,6 +89,7 @@ export default class LUT {
   processBuffer(buf:Uint8ClampedArray, noAlpha = false):void {
     for(let i = 0; i < buf.length; i += (noAlpha ? 3 : 4)) {
       const int = rgbToInteger(buf[i], buf[i+1], buf[i+2]);
+
       const result = this.data[int];
 
       buf[i] = (result >> 16) & 0xFF;
@@ -145,7 +149,7 @@ export default class LUT {
   }
 
   public static fromImageData(name:string, buf:Uint8ClampedArray):Promise<LUT> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // My figure is that LUTS are always 64x64 blocks to make them up.
       const lut = new LUT(name);
 
