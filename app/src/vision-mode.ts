@@ -41,12 +41,12 @@ export const VisionModes:Record<string, VisionMode> = {
   canine: {
     name: 'Canine (Dog)',
     url: '/LUTs/animals/canine.lut.png',
-    acuityDegrade: 4,
+    acuityDegrade: 3,
   },
   feline: {
     name: 'Feline (Cat)',
     url: '/LUTs/animals/feline.lut.png',
-    acuityDegrade: 2.5,
+    acuityDegrade: 2,
   },
 };
 export type EVisionMode = keyof typeof VisionModes;

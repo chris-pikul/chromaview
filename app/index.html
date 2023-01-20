@@ -10,6 +10,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+    <script>
+      const backdrops = [
+        "alex-gorham-gIgciC_WKnY-unsplash.jpg",
+        "federico-bottos-JUFuI-kBtas-unsplash.jpg",
+        "jeremy-bishop-uAfZBP-GtiA-unsplash.jpg",
+        "john-towner-JgOeRuGD_Y4-unsplash.jpg",
+        "jonatan-pie-3l3RwQdHRHg-unsplash.jpg",
+      ];
+      const randomBackdrop = () => (backdrops[Math.trunc(Math.random() * backdrops.length)]);
+      document.documentElement.style.setProperty('--random-backdrop', `url("/backgrounds/${randomBackdrop()}")`);
+    </script>
   </head>
   <body>
     <div id="root"></div>

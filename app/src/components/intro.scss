@@ -7,7 +7,7 @@
   flex-wrap: nowrap;
   align-items: center;
 
-  background-image: url('https://source.unsplash.com/random/1920×1080?nature,dark');
+  background-image: var(--random-backdrop);
   background-position: center center;
   background-size: cover;
   background-attachment: fixed;

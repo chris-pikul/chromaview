@@ -82,6 +82,9 @@ export default class Processor {
     // Start with a do-nothing LUT
     this.#lut = new LUT();
 
+    // Check lut output
+    console.log(this.#lut.process(255, 255, 255));
+
     document.addEventListener('visibilitychange', this.updateVisibility);
     this.updateVisibility();
 
