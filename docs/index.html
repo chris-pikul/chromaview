@@ -10,8 +10,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-68ba6735.js"></script>
-    <link rel="stylesheet" href="/assets/index-00ff6ef3.css">
+
+    <script>
+      const backdrops = [
+        "alex-gorham-gIgciC_WKnY-unsplash.jpg",
+        "federico-bottos-JUFuI-kBtas-unsplash.jpg",
+        "jeremy-bishop-uAfZBP-GtiA-unsplash.jpg",
+        "john-towner-JgOeRuGD_Y4-unsplash.jpg",
+        "jonatan-pie-3l3RwQdHRHg-unsplash.jpg",
+      ];
+      const randomBackdrop = () => (backdrops[Math.trunc(Math.random() * backdrops.length)]);
+      document.documentElement.style.setProperty('--random-backdrop', `url("/backgrounds/${randomBackdrop()}")`);
+    </script>
+    <script type="module" crossorigin src="/assets/index-dc28b76d.js"></script>
+    <link rel="stylesheet" href="/assets/index-64f77ee5.css">
   </head>
   <body>
     <div id="root"></div>
