@@ -80,7 +80,6 @@
       height: 10vmin;
       margin-top: -5vmin;
       margin-left: -5vmin;
-      box-sizing: border-box;
 
       &::after {
         content: " ";
@@ -88,7 +87,6 @@
 
         width: 100%;
         height: 100%;
-        box-sizing: border-box;
 
         margin: 0;
         border-radius: 50%;
@@ -105,6 +103,23 @@
           }
         }
       }
+    }
+
+    #camera-error {
+      display: block;
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50vw;
+      transform: translate(-50%, -50%);
+
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 0.25rem;
+
+      h3 { margin-bottom: 1rem; font-size: 2rem; text-align: center; }
+      p { font-size: 1.25rem; }
     }
   }
 }

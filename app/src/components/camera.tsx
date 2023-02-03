@@ -18,6 +18,7 @@ export default function CameraComponent({
   const [ fullscreen, setFullscreen ] = useState(false);
   const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
+  const [ failed, setFailed ] = useState<boolean>(false);
 
   const cycleMode = () => {
     const availKeys = Object.keys(VisionModes);
@@ -32,9 +33,15 @@ export default function CameraComponent({
 
   const handleLUTLoading = () => setLoading(true);
 
-  const handleLUTSuccess = () => setLoading(false);
+  const handleLUTSuccess = () => {
+    setLoading(false);
+    setFailed(false);
+  }
 
-  const handleLUTFailed = () => setLoading(false);
+  const handleLUTFailed = () => {
+    setLoading(false);
+    setFailed(true);
+  }
 
   // Watch when mode changes
   useEffect(() => {
@@ -139,6 +146,11 @@ export default function CameraComponent({
       </div>
 
       { loading && <div id='camera-loading' /> }
+
+      { failed && <div id='camera-error'>
+        <h3>Oops! An Error Occured</h3>
+        <p>Looks like something went wrong trying to load the filter. Check your internet connection and try again.</p>
+      </div> }
     </div>
   </div>
 }
