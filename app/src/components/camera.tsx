@@ -17,6 +17,7 @@ export default function CameraComponent({
 
   const [ fullscreen, setFullscreen ] = useState(false);
   const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
+  const [ loading, setLoading ] = useState<boolean>(false);
 
   const cycleMode = () => {
     const availKeys = Object.keys(VisionModes);
@@ -29,9 +30,18 @@ export default function CameraComponent({
     }
   };
 
+  const handleLUTLoading = () => setLoading(true);
+
+  const handleLUTSuccess = () => setLoading(false);
+
+  const handleLUTFailed = () => setLoading(false);
+
   // Watch when mode changes
   useEffect(() => {
     if(processorRef.current) {
+      processorRef.current.onLUTLoading = handleLUTLoading;
+      processorRef.current.onLUTSuccess = handleLUTSuccess;
+      processorRef.current.onLUTFailed = handleLUTFailed;
       processorRef.current.changeLUT(curMode?.url);
 
       if(curMode && curMode.acuityDegrade)
@@ -127,6 +137,8 @@ export default function CameraComponent({
           
         </button>
       </div>
+
+      { loading && <div id='camera-loading' /> }
     </div>
   </div>
 }

@@ -34,6 +34,10 @@ export default class Processor {
   fpsCount = 0;
   sampleTime = 0;
 
+  onLUTLoading:Function = () => {};
+  onLUTSuccess:Function = () => {};
+  onLUTFailed:Function = () => {};
+
   #stream:(MediaStream|null) = null;
   #video:(HTMLVideoElement|null) = null;
 
@@ -276,13 +280,17 @@ export default class Processor {
     }
 
     this.#loadingLUT = true;
+    this.onLUTLoading();
+
     LUT.loadLUTImage(url)
       .then(lut => {
         this.#lut = lut;
         console.log('Received LUT from async loading');
+        this.onLUTSuccess();
       })
       .catch(err => {
         console.error('Bad LUT received', err);
+        this.onLUTFailed();
       })
       .finally(() => {
         this.#loadingLUT = false;
