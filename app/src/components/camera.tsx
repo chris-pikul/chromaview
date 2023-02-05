@@ -53,6 +53,22 @@ export default function CameraComponent({
       document.documentElement.requestFullscreen();
   };
 
+// FEAT: LUT Loading
+  const [ lutLoading, setLUTLoading ] = useState<boolean>(false);
+  const [ lutFailed, setLUTFailed ] = useState<boolean>(false);
+
+  const handleLUTLoading = () => setLUTLoading(true);
+
+  const handleLUTSuccess = () => {
+    setLUTLoading(false);
+    setLUTFailed(false);
+  }
+
+  const handleLUTFailed = () => {
+    setLUTLoading(false);
+    setLUTFailed(true);
+  }
+
 // FEAT: Color-blind mode switching
   const [ currentVisionMode, setCurrentVisionMode ] = useState<VisionMode|null>(null);
 
@@ -67,22 +83,7 @@ export default function CameraComponent({
     }
   };
 
-  const [ loading, setLoading ] = useState<boolean>(false);
-  const [ failed, setFailed ] = useState<boolean>(false);
-
-  const handleLUTLoading = () => setLoading(true);
-
-  const handleLUTSuccess = () => {
-    setLoading(false);
-    setFailed(false);
-  }
-
-  const handleLUTFailed = () => {
-    setLoading(false);
-    setFailed(true);
-  }
-
-  // Watch when mode changes
+  // Watch when vision mode changes
   useEffect(() => {
     if(processorRef.current) {
       processorRef.current.onLUTLoading = handleLUTLoading;
@@ -157,9 +158,9 @@ export default function CameraComponent({
         </button>
       </div>
 
-      { loading && <div id='camera-loading' /> }
+      { lutLoading && <div id='camera-loading' /> }
 
-      { failed && <div id='camera-error'>
+      { lutFailed && <div id='camera-error'>
         <h3>Oops! An Error Occured</h3>
         <p>Looks like something went wrong trying to load the filter. Check your internet connection and try again.</p>
       </div> }
