@@ -26,6 +26,7 @@ export default class Processor {
   permitted:boolean = false;
   trackSettings:(MediaTrackSettings|null) = null;
   running:boolean = false;
+  bypass:boolean = false;
 
   acuity:number = 2;
 
@@ -64,6 +65,7 @@ export default class Processor {
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
     this.process = this.process.bind(this);
+    this.processBypassed = this.processBypassed.bind(this);
     this.render = this.render.bind(this);
     this.changeLUT = this.changeLUT.bind(this);
     this.loadLUTFromURL = this.loadLUTFromURL.bind(this);
@@ -228,10 +230,24 @@ export default class Processor {
     }
   }
 
+  processBypassed() {
+    if(this.running && this.#video && this.#bufferCanvas && this.#bufferCTX) {
+      this.#bufferCanvas.width = this.#videoWidth;
+      this.#bufferCanvas.height = this.#videoHeight;
+
+      this.#bufferCTX.filter == 'none';
+
+      this.#bufferCTX.drawImage(this.#video, 0, 0, this.#videoWidth, this.#videoHeight);
+    }
+  }
+
   render() {
     if(!this.running) return;
 
-    this.process();
+    if(this.bypass)
+      this.processBypassed();
+    else
+      this.process();
 
     if(this.#displayCanvas && this.#displayCTX) {
       this.#displayCanvas.width = this.#domWidth;
