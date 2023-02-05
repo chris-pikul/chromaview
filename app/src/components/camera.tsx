@@ -53,20 +53,22 @@ export default function CameraComponent({
       document.documentElement.requestFullscreen();
   };
 
-  const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
-  const [ loading, setLoading ] = useState<boolean>(false);
-  const [ failed, setFailed ] = useState<boolean>(false);
+// FEAT: Color-blind mode switching
+  const [ currentVisionMode, setCurrentVisionMode ] = useState<VisionMode|null>(null);
 
-  const cycleMode = () => {
+  const cycleVisionMode = () => {
     const availKeys = Object.keys(VisionModes);
-    const curInd = availKeys.findIndex(key => VisionModes[key].name === curMode?.name);
+    const curInd = availKeys.findIndex(key => VisionModes[key].name === currentVisionMode?.name);
     if(curInd !== -1) {
       const nextInd = (curInd + 1) % availKeys.length;
-      setCurrentMode(VisionModes[availKeys[nextInd]]);
+      setCurrentVisionMode(VisionModes[availKeys[nextInd]]);
     } else {
-      setCurrentMode(VisionModes[availKeys[0]]);
+      setCurrentVisionMode(VisionModes[availKeys[0]]);
     }
   };
+
+  const [ loading, setLoading ] = useState<boolean>(false);
+  const [ failed, setFailed ] = useState<boolean>(false);
 
   const handleLUTLoading = () => setLoading(true);
 
@@ -86,14 +88,14 @@ export default function CameraComponent({
       processorRef.current.onLUTLoading = handleLUTLoading;
       processorRef.current.onLUTSuccess = handleLUTSuccess;
       processorRef.current.onLUTFailed = handleLUTFailed;
-      processorRef.current.changeLUT(curMode?.url);
+      processorRef.current.changeLUT(currentVisionMode?.url);
 
-      if(curMode && curMode.acuityDegrade)
-        processorRef.current.acuity = Math.max(1, curMode.acuityDegrade);
+      if(currentVisionMode && currentVisionMode.acuityDegrade)
+        processorRef.current.acuity = Math.max(1, currentVisionMode.acuityDegrade);
       else
         processorRef.current.acuity = 1;
     }
-  }, [ curMode ]);
+  }, [ currentVisionMode ]);
 
   // Triggered when parent gets resized because of window resizing
   const handleResize = () => {
@@ -137,9 +139,9 @@ export default function CameraComponent({
 
   return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
-    <div id='camera-overlay' onClick={cycleMode}>
+    <div id='camera-overlay' onClick={cycleVisionMode}>
       <div id='camera-tools-bottom'>
-        <span id='camera-curmode'>{ curMode === null ? 'Normal (Unchanged)' : curMode.name }</span>
+        <span id='camera-curmode'>{ currentVisionMode === null ? 'Normal (Unchanged)' : currentVisionMode.name }</span>
 
         <button className='icon' title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={evt => toggleFullscreen(evt as unknown as Event)}>
           { isFullscreen === true ? (
