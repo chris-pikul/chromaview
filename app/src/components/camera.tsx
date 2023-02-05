@@ -23,11 +23,16 @@ import './camera.scss';
 export default function CameraComponent({
   transitionedIn,
 }:CameraProps) {
-  const canvasRef = useRef<HTMLCanvasElement|null>(null);
-  const processorRef = useRef<Processor|null>(null);
+  // Wrapping container element
   const wrapperRef = useRef<HTMLDivElement|null>(null);
 
-  // FEAT: Fullscreen
+  // Canvas display element
+  const canvasRef = useRef<HTMLCanvasElement|null>(null);
+
+  // Processor class (singleton if possible)
+  const processorRef = useRef<Processor|null>(null);
+
+// FEAT: Fullscreen
   const [ isFullscreen, setFullscreen ] = useState(false);
 
   // Triggered when window goes in/out of fullscreen
