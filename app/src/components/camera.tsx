@@ -98,6 +98,7 @@ export default function CameraComponent({
     }
   }, [ currentVisionMode ]);
 
+// FEAT: Dom events
   // Triggered when parent gets resized because of window resizing
   const handleResize = () => {
     if(wrapperRef.current && processorRef.current) {
@@ -120,24 +121,23 @@ export default function CameraComponent({
       processorRef.current.setCanvas(canvasRef.current);
     }
 
+    // Initial resize event so processor get's it after component mount
     handleResize();
 
+    // Cleanup after-effect
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('fullscreenchange', handleFullscreen);
     };
-  }, [ canvasRef ]);
+  }, [ wrapperRef, canvasRef ]);
 
   // On transition finished
   useEffect(() => {
-    if(transitionedIn) {
-      if(processorRef.current)
+    if(transitionedIn && processorRef.current)
         processorRef.current.load();
-
-      console.info('React detected end of fade-in transition');
-    }
   }, [ transitionedIn ]);
 
+// FEAT: Component rendering
   return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleVisionMode}>
