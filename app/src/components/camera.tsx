@@ -14,6 +14,7 @@ export default function CameraComponent({
 }:CameraProps) {
   const canvasRef = useRef<HTMLCanvasElement|null>(null);
   const processorRef = useRef<Processor|null>(null);
+  const wrapperRef = useRef<HTMLDivElement|null>(null);
 
   const [ fullscreen, setFullscreen ] = useState(false);
   const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
@@ -60,12 +61,9 @@ export default function CameraComponent({
 
   // Triggered when parent gets resized because of window resizing
   const handleResize = () => {
-    const camEL = document.getElementById('camera');
-    if(camEL) {
-      const bounds = camEL.getBoundingClientRect();
-
-      if(processorRef.current)
-        processorRef.current.handleResize(bounds);
+    if(wrapperRef.current && processorRef.current) {
+      const bounds = wrapperRef.current.getBoundingClientRect();
+      processorRef.current.handleResize(bounds);
     }
   };
 
@@ -125,7 +123,7 @@ export default function CameraComponent({
     }
   };
 
-  return <div id='camera'>
+  return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleMode}>
       <div id='camera-tools-bottom'>
