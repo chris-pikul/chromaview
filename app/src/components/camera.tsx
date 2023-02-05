@@ -4,6 +4,17 @@ import { VisionModes } from '../vision-mode';
 
 import type { VisionMode } from '../vision-mode';
 
+/**
+ * Detect if the window is in fullscreen mode
+ * 
+ * @returns True if currently in fullscreen
+ */
+const detectIfFullscreen = ():boolean => (
+  ('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
+  ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
+  ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null)
+);
+
 export interface CameraProps {
   transitionedIn:boolean;
 };
@@ -16,7 +27,27 @@ export default function CameraComponent({
   const processorRef = useRef<Processor|null>(null);
   const wrapperRef = useRef<HTMLDivElement|null>(null);
 
-  const [ fullscreen, setFullscreen ] = useState(false);
+  // FEAT: Fullscreen
+  const [ isFullscreen, setFullscreen ] = useState(false);
+
+  // Triggered when window goes in/out of fullscreen
+  const handleFullscreen = () => setFullscreen(detectIfFullscreen());
+
+  // Button press to toggle fullscreen mode
+  const toggleFullscreen = (evt?:Event) => {
+    // Prevent clickthrough
+    if(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
+
+    // Exit fullscreen
+    if(detectIfFullscreen())
+      document.exitFullscreen();
+    else
+      document.documentElement.requestFullscreen();
+  };
+
   const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ failed, setFailed ] = useState<boolean>(false);
@@ -67,13 +98,6 @@ export default function CameraComponent({
     }
   };
 
-  // Triggered when window goes in/out of fullscreen
-  const handleFullscreen = () => {
-    setFullscreen(('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
-      ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
-      ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null));
-  }
-
   // On component mounted
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -106,31 +130,14 @@ export default function CameraComponent({
     }
   }, [ transitionedIn ]);
 
-  const toggleFullscreen = (evt?:Event) => {
-    // Prevent clickthrough
-    if(evt) {
-      evt.stopPropagation();
-      evt.preventDefault();
-    }
-
-    // Exit fullscreen
-    if(('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
-      ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
-      ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null)) {
-      document.exitFullscreen();
-    } else {
-      document.documentElement.requestFullscreen();
-    }
-  };
-
   return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleMode}>
       <div id='camera-tools-bottom'>
         <span id='camera-curmode'>{ curMode === null ? 'Normal (Unchanged)' : curMode.name }</span>
 
-        <button className='icon' title={fullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={(evt) => toggleFullscreen(evt as unknown as Event)}>
-          { fullscreen === true ? (
+        <button className='icon' title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={evt => toggleFullscreen(evt as unknown as Event)}>
+          { isFullscreen === true ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
               <path d="M16.6 38v-6.7H10v-3h9.7V38Zm11.7 0v-9.7H38v3h-6.7V38ZM10 19.6v-3h6.7V10h3v9.7Zm18.4 0V10h3v6.7H38v3Z"/>
             </svg>
