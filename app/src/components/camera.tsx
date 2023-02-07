@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+
+import LUTState from './lut-state';
+
 import Processor from '../processor';
 import { VisionModes } from '../vision-mode';
 
@@ -53,22 +56,6 @@ export default function CameraComponent({
       document.documentElement.requestFullscreen();
   };
 
-// FEAT: LUT Loading
-  const [ lutLoading, setLUTLoading ] = useState<boolean>(false);
-  const [ lutFailed, setLUTFailed ] = useState<boolean>(false);
-
-  const handleLUTLoading = () => setLUTLoading(true);
-
-  const handleLUTSuccess = () => {
-    setLUTLoading(false);
-    setLUTFailed(false);
-  }
-
-  const handleLUTFailed = () => {
-    setLUTLoading(false);
-    setLUTFailed(true);
-  }
-
 // FEAT: Color-blind mode switching
   const [ currentVisionMode, setCurrentVisionMode ] = useState<VisionMode|null>(null);
 
@@ -86,9 +73,6 @@ export default function CameraComponent({
   // Watch when vision mode changes
   useEffect(() => {
     if(processorRef.current) {
-      processorRef.current.onLUTLoading = handleLUTLoading;
-      processorRef.current.onLUTSuccess = handleLUTSuccess;
-      processorRef.current.onLUTFailed = handleLUTFailed;
       processorRef.current.changeLUT(currentVisionMode?.url);
 
       if(currentVisionMode && currentVisionMode.acuityDegrade)
@@ -186,12 +170,7 @@ export default function CameraComponent({
         </button>
       </div>
 
-      { lutLoading && <div id='camera-loading' /> }
-
-      { lutFailed && <div id='camera-error'>
-        <h3>Oops! An Error Occured</h3>
-        <p>Looks like something went wrong trying to load the filter. Check your internet connection and try again.</p>
-      </div> }
+      <LUTState processorRef={processorRef} />
     </div>
   </div>
 }
