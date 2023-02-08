@@ -83,7 +83,12 @@ export default function Selector({
     { isOpen && <SelectorMenu currentID={current?.id ?? ''} onSelect={handleSelect} /> }
 
     <button type='button' className='selector-current' onClick={handleCurrentClick}>
-      { modeToLabel(current) }
+      { current ? (<>
+        <span className='current-name'>{ current.name }</span>
+        <span className='current-class'>&nbsp;—&nbsp;{ current.classification }</span>
+      </>) : (
+        'Normal Vision (Unchanged)'
+      ) }
     </button>
   </div>
 }

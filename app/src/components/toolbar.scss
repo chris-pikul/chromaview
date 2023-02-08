@@ -12,12 +12,15 @@
   bottom: 0;
   left: 0;
 
-  padding: 1rem;
-  gap: 1rem;
+  font-size: 1rem;
+  @include fluid-type(font-size, 0.5rem, 1rem);
+
+  padding: 1em;
+  gap: 1em;
 
   .toolbar-button {
-    padding: 0.5rem;
-    font-size: 2rem;
+    padding: 0.5em;
+    font-size: 2em;
 
     transform: scale(1);
     transition: transform 0.15s ease-in-out, background 0.2s ease-out;
@@ -34,13 +37,13 @@
     justify-content: space-around;
     align-items: center;
 
-    font-size: 1rem;
+    font-size: 1em;
     line-height: 1em;
 
     background: rgba(0, 0, 0, 0.5);
     color: $clr-white;
     border: none;
-    border-radius: 0.25rem;
+    border-radius: 0.25em;
     cursor: pointer;
   }
 }

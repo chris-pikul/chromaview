@@ -22,7 +22,7 @@ export const VisionModes:Record<string, VisionMode> = {
     id: 'achromatopsia',
     name: 'Achromatopsia',
     classification: 'Monochromatic',
-    summary: 'Monochromatic vision, devoid of working code cells',
+    summary: 'Monochromatic vision, devoid of working cone cells',
     url: './LUTs/achromatopsia.lut.png',
     rates: [ 0, 0 ],
   },
