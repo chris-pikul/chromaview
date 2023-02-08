@@ -19,9 +19,7 @@ export default function Toolbar({
   return <div className='toolbar'>
     <Selector current={currentVisionMode} />
     
-    <div className='toolbar-buttons'>
-      <BypassButton processorRef={processorRef} />
-      <FullscreenButton />
-    </div>
+    <BypassButton processorRef={processorRef} />
+    <FullscreenButton />
   </div>
 }
