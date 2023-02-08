@@ -69,6 +69,10 @@
       &.active {
         background: rgba(0, 0, 0, 0.5);
       }
+
+      &:focus, &.focus {
+        border: 1px solid $clr-white;
+      }
     }
   }
 }

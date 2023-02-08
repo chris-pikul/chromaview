@@ -26,6 +26,7 @@ function SelectorMenu({
       return <button key={mode.name}
         type='button'
         className={`selector-entry ${currentName === mode.name ? 'active' : 'inactive'}`}
+        autoFocus={currentName === mode.name}
         onClick={() => onSelect(mode)}>
         { mode.name }
       </button>
