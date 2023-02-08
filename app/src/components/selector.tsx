@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { VisionModes } from '../vision-mode';
 
 import type { MouseEvent } from 'react';
@@ -21,14 +21,16 @@ const modeToLabel = (mode?:VisionMode|null) => {
 
 interface SelectorMenuProps {
   currentID:string;
+  fadeOut?:boolean;
   onSelect:(mode:VisionMode) => void;
 };
 
 function SelectorMenu({
   currentID,
+  fadeOut,
   onSelect,
 }:SelectorMenuProps) {
-  return <div className='selector-menu' onClick={noClickThrough}>
+  return <div className={`selector-menu ${fadeOut ? 'trans-out' : ''}`} onClick={noClickThrough}>
     { Object.values(VisionModes).map(mode => {
       return <button key={mode.id}
         type='button'
@@ -64,23 +66,41 @@ export default function Selector({
   onSelect,
 }:SelectorProps) {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
+  const [ fadeOut, setFadeOut ] = useState<boolean>(false);
 
   // When the selector bar is clicked
   const handleCurrentClick = (evt?:MouseEvent) => {
     // Prevent click-through
     noClickThrough(evt);
 
-    setIsOpen(!isOpen);
+    if(isOpen)
+      setFadeOut(true)
+    else
+      setIsOpen(true);
   }
 
   // When an entry is selected
   const handleSelect = (mode:VisionMode) => {
-    setIsOpen(false);
     onSelect(mode);
+
+    if(isOpen)
+      setFadeOut(true);
   };
 
+  // Manage transition out
+  useEffect(() => {
+    if(fadeOut) {
+      const handle = setTimeout(() => {
+        setIsOpen(false);
+        setFadeOut(false);
+      }, 300);
+
+      return () => clearTimeout(handle);
+    }
+  }, [ fadeOut ]);
+
   return <div className='selector'>
-    { isOpen && <SelectorMenu currentID={current?.id ?? ''} onSelect={handleSelect} /> }
+    { (isOpen || fadeOut) && <SelectorMenu currentID={current?.id ?? ''} onSelect={handleSelect} fadeOut={fadeOut} /> }
 
     <button type='button' className='selector-current' onClick={handleCurrentClick}>
       { current ? (<>
