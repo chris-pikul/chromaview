@@ -1,0 +1,28 @@
+@use '../palette' as *;
+@use '../utils' as *;
+
+.selector {
+  flex: 1;
+  
+  .selector-current {
+    display: flex;
+    flex-flow: row nowrap;
+    
+    width: 100%;
+    text-align: left;
+
+    padding: 0.75rem 0.5rem;
+    font-size: 1.5rem;
+    color: $clr-white;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+
+    transition: background 0.2s ease-out;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.75);
+    }
+  }
+}

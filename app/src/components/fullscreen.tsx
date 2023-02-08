@@ -37,7 +37,7 @@ export default function FullscreenButton() {
     return () => window.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  return <button className='icon' title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={evt => toggleFullscreen(evt as unknown as Event)}>
+  return <button className='icon toolbar-button' title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={evt => toggleFullscreen(evt as unknown as Event)}>
     { isFullscreen === true ? (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
         <path d="M16.6 38v-6.7H10v-3h9.7V38Zm11.7 0v-9.7H38v3h-6.7V38ZM10 19.6v-3h6.7V10h3v9.7Zm18.4 0V10h3v6.7H38v3Z"/>

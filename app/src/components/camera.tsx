@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
+import Toolbar from './toolbar';
 import LUTState from './lut-state';
-import FullscreenButton from './fullscreen';
-import BypassButton from './bypass';
 
 import Processor from '../processor';
 import { VisionModes } from '../vision-mode';
@@ -93,13 +92,7 @@ export default function CameraComponent({
   return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleVisionMode}>
-      <div id='camera-tools-bottom'>
-        <span id='camera-curmode'>{ currentVisionMode === null ? 'Normal (Unchanged)' : currentVisionMode.name }</span>
-
-        <BypassButton processorRef={processorRef} />
-
-        <FullscreenButton />
-      </div>
+      <Toolbar processorRef={processorRef} currentVisionMode={currentVisionMode} />
 
       <LUTState processorRef={processorRef} />
     </div>
