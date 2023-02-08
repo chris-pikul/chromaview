@@ -12,23 +12,42 @@ const noClickThrough = (evt?:MouseEvent) => {
   }
 };
 
+const modeToLabel = (mode?:VisionMode|null) => {
+  if(mode)
+    return `${mode.name} — ${mode.classification}`;
+
+  return 'Normal Vision (Unchanged)';
+}
+
 interface SelectorMenuProps {
-  currentName:string;
+  currentID:string;
   onSelect:(mode:VisionMode) => void;
 };
 
 function SelectorMenu({
-  currentName,
+  currentID,
   onSelect,
 }:SelectorMenuProps) {
   return <div className='selector-menu' onClick={noClickThrough}>
     { Object.values(VisionModes).map(mode => {
-      return <button key={mode.name}
+      return <button key={mode.id}
         type='button'
-        className={`selector-entry ${currentName === mode.name ? 'active' : 'inactive'}`}
-        autoFocus={currentName === mode.name}
+        className={`selector-entry ${currentID === mode.id ? 'active' : 'inactive'}`}
+        autoFocus={currentID === mode.id}
         onClick={() => onSelect(mode)}>
-        { mode.name }
+        
+        <header>
+          <h2>{ mode.name }</h2>
+          <h3>{ mode.classification }</h3>
+        </header>
+
+        <p>{ mode.summary }</p>
+
+        { (!mode.animal) && <footer>
+          <label>Estimated people with this condition:</label>
+          <span className='entry-stat'>Males: {mode.rates[0] }%</span>
+          <span className='entry-stat'>Females: {mode.rates[1]}%</span>  
+        </footer>}
       </button>
     }) }
   </div>
@@ -60,14 +79,11 @@ export default function Selector({
     onSelect(mode);
   };
 
-  // Derive a valid display label
-  const displayName = (current && current.name) ?? 'Normal (Unchanged)';
-
   return <div className='selector'>
-    { isOpen && <SelectorMenu currentName={current?.name ?? 'none'} onSelect={handleSelect} /> }
+    { isOpen && <SelectorMenu currentID={current?.id ?? ''} onSelect={handleSelect} /> }
 
     <button type='button' className='selector-current' onClick={handleCurrentClick}>
-      { displayName }
+      { modeToLabel(current) }
     </button>
   </div>
 }
