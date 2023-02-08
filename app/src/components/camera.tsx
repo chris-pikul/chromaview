@@ -39,6 +39,9 @@ export default function CameraComponent({
     }
   };
 
+  // Used by the toolbar to select from a drop-down menu
+  const handleSelectMode = (mode:VisionMode) => setCurrentVisionMode(mode);
+
   // Watch when vision mode changes
   useEffect(() => {
     if(processorRef.current) {
@@ -92,7 +95,9 @@ export default function CameraComponent({
   return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleVisionMode}>
-      <Toolbar processorRef={processorRef} currentVisionMode={currentVisionMode} />
+      <Toolbar processorRef={processorRef}
+        currentVisionMode={currentVisionMode}
+        onSelectMode={handleSelectMode} />
 
       <LUTState processorRef={processorRef} />
     </div>
