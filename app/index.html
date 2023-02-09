@@ -20,7 +20,9 @@
         "jonatan-pie-3l3RwQdHRHg-unsplash.jpg",
       ];
       const randomBackdrop = () => (backdrops[Math.trunc(Math.random() * backdrops.length)]);
-      document.documentElement.style.setProperty('--random-backdrop', `url("./backgrounds/${randomBackdrop()}")`);
+      const basePath = window.location.origin + window.location.pathname;
+      const imgURL = new URL(`./backgrounds/${randomBackdrop()}`, basePath);
+      document.documentElement.style.setProperty('--random-backdrop', `url("${imgURL.href}")`);
     </script>
   </head>
   <body>
