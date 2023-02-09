@@ -112,7 +112,7 @@ export default class LUT {
     return new Promise((resolve, reject) => {
       let url:URL, img:HTMLImageElement;
       try {
-        url = new URL(imgURL, window.location.origin);
+        url = new URL(imgURL, window.location.origin + window.location.pathname);
         img = new Image();
         img.src = url.toString();
 

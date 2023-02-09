@@ -1,0 +1,207 @@
+@use '../palette' as *;
+@use '../utils' as *;
+
+.selector {
+  flex: 1;
+  position: relative;
+
+  font-size: 1em;
+  
+  .selector-current {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    width: 100%;
+    padding: 0.75em 0.5em;
+
+    font-size: 1.5em;
+    text-align: left;
+
+    color: $clr-white;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 0.25em;
+    cursor: pointer;
+
+    transition: background 0.2s ease-out;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.75);
+    }
+  }
+
+  .selector-menu {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: 101%;
+    bottom: calc(100% + 0.5em);
+    left: 0;
+
+    max-height: 80vh;
+    height: 0;
+    padding: 0.5em;
+
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3vmin);
+    opacity: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    animation: menu-in-desk 0.5s ease-in 0s 1 normal forwards;
+
+    @keyframes menu-in-desk {
+      from {
+        height: 0;
+        opacity: 0;
+      }
+      
+      to {
+        height: 80vh;
+        opacity: 1;
+      }
+    }
+
+    @keyframes menu-in-desk-out {
+      from {
+        height: 80vh;
+        opacity: 1;
+      }
+
+      to {
+        height: 0;
+        opacity: 0;
+      }
+    }
+
+    &.trans-out {
+      pointer-events: none;
+      animation: menu-in-desk-out 0.3s ease-out 0s 1 normal forwards;
+    }
+
+    .selector-entry {
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: flex-start;
+      align-items: stretch;
+
+      padding: 1em 0.5em;
+
+      font-size: 1em;
+      text-align: left;
+
+      background: transparent;
+      border-bottom: 1px solid darken($clr-white, 75%);
+      border-radius: 0;
+
+      header {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+
+        width: 100%;
+        margin-bottom: 0.25em;
+
+        font-size: inherit;
+
+        h2 {
+          font-size: 2em;
+        }
+
+        h3 {
+          font-size: 1.5em;
+          color: darken($clr-white, 20%);
+        }
+      }
+
+      p {
+        display: block;
+        font-size: 1em;
+      }
+
+      footer {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+        align-items: center;
+
+        margin-top: 0.25em;
+        font-size: 1em;
+
+        label {
+          color: darken($clr-white, 20%);
+        }
+
+        label, .entry-stat {
+          margin-right: 1em;
+        }
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &.active {
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.75);
+      }
+
+      &:focus {
+        border: 1px solid $clr-white;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 675px) {
+  .selector .selector-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 5em;
+
+    max-height: unset; 
+    height: unset;
+
+    animation: menu-in-mobile 0.5s ease-in 0s 1 normal forwards;
+
+    @keyframes menu-in-mobile {
+      from {
+        opacity: 0;
+      }
+      
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes menu-in-mobile-out {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    &.trans-out {
+      animation: menu-in-mobile-out 0.3s ease-out 0s 1 normal forwards;
+    }
+  }
+
+  .selector-current .current-class {
+    display: none;
+  }
+}

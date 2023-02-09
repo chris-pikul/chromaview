@@ -1,4 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+
+import Toolbar from './toolbar';
+import LUTState from './lut-state';
+
 import Processor from '../processor';
 import { VisionModes } from '../vision-mode';
 
@@ -12,57 +16,56 @@ import './camera.scss';
 export default function CameraComponent({
   transitionedIn,
 }:CameraProps) {
+  // Wrapping container element
+  const wrapperRef = useRef<HTMLDivElement|null>(null);
+
+  // Canvas display element
   const canvasRef = useRef<HTMLCanvasElement|null>(null);
+
+  // Processor class (singleton if possible)
   const processorRef = useRef<Processor|null>(null);
 
-  const [ fullscreen, setFullscreen ] = useState(false);
-  const [ curMode, setCurrentMode ] = useState<VisionMode|null>(null);
+// FEAT: Color-blind mode switching
+  const [ currentVisionMode, setCurrentVisionMode ] = useState<VisionMode|null>(null);
 
-  const cycleMode = () => {
+  const cycleVisionMode = () => {
     const availKeys = Object.keys(VisionModes);
-    const curInd = availKeys.findIndex(key => VisionModes[key].name === curMode?.name);
+    const curInd = availKeys.findIndex(key => VisionModes[key].name === currentVisionMode?.name);
     if(curInd !== -1) {
       const nextInd = (curInd + 1) % availKeys.length;
-      setCurrentMode(VisionModes[availKeys[nextInd]]);
+      setCurrentVisionMode(VisionModes[availKeys[nextInd]]);
     } else {
-      setCurrentMode(VisionModes[availKeys[0]]);
+      setCurrentVisionMode(VisionModes[availKeys[0]]);
     }
   };
 
-  // Watch when mode changes
+  // Used by the toolbar to select from a drop-down menu
+  const handleSelectMode = (mode:VisionMode) => setCurrentVisionMode(mode);
+
+  // Watch when vision mode changes
   useEffect(() => {
     if(processorRef.current) {
-      processorRef.current.changeLUT(curMode?.url);
+      processorRef.current.changeLUT(currentVisionMode?.url);
 
-      if(curMode && curMode.acuityDegrade)
-        processorRef.current.acuity = Math.max(1, curMode.acuityDegrade);
+      if(currentVisionMode && currentVisionMode.acuityDegrade)
+        processorRef.current.acuity = Math.max(1, currentVisionMode.acuityDegrade);
       else
         processorRef.current.acuity = 1;
     }
-  }, [ curMode ]);
+  }, [ currentVisionMode ]);
 
+// FEAT: Dom events
   // Triggered when parent gets resized because of window resizing
   const handleResize = () => {
-    const camEL = document.getElementById('camera');
-    if(camEL) {
-      const bounds = camEL.getBoundingClientRect();
-
-      if(processorRef.current)
-        processorRef.current.handleResize(bounds);
+    if(wrapperRef.current && processorRef.current) {
+      const bounds = wrapperRef.current.getBoundingClientRect();
+      processorRef.current.handleResize(bounds);
     }
   };
-
-  // Triggered when window goes in/out of fullscreen
-  const handleFullscreen = () => {
-    setFullscreen(('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
-      ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
-      ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null));
-  }
 
   // On component mounted
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    window.addEventListener('fullscreenchange', handleFullscreen);
 
     if(canvasRef.current) {
       console.info('React received canvas element as mounted');
@@ -73,60 +76,30 @@ export default function CameraComponent({
       processorRef.current.setCanvas(canvasRef.current);
     }
 
+    // Initial resize event so processor get's it after component mount
     handleResize();
 
+    // Cleanup after-effect
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('fullscreenchange', handleFullscreen);
     };
-  }, [ canvasRef ]);
+  }, [ wrapperRef, canvasRef ]);
 
   // On transition finished
   useEffect(() => {
-    if(transitionedIn) {
-      if(processorRef.current)
+    if(transitionedIn && processorRef.current)
         processorRef.current.load();
-
-      console.info('React detected end of fade-in transition');
-    }
   }, [ transitionedIn ]);
 
-  const toggleFullscreen = (evt?:Event) => {
-    // Prevent clickthrough
-    if(evt) {
-      evt.stopPropagation();
-      evt.preventDefault();
-    }
-
-    // Exit fullscreen
-    if(('fullscreenElement' in document && document['fullscreenElement'] !== null) || 
-      ('mozFullScreenElement' in document && document['mozFullScreenElement'] !== null) ||
-      ('webkitFullscreenElement' in document && document['webkitFullscreenElement'] !== null)) {
-      document.exitFullscreen();
-    } else {
-      document.documentElement.requestFullscreen();
-    }
-  };
-
-  return <div id='camera'>
+// FEAT: Component rendering
+  return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
-    <div id='camera-overlay' onClick={cycleMode}>
-      <div id='camera-tools-bottom'>
-        <span id='camera-curmode'>{ curMode === null ? 'Normal (Unchanged)' : curMode.name }</span>
+    <div id='camera-overlay' onClick={cycleVisionMode}>
+      <Toolbar processorRef={processorRef}
+        currentVisionMode={currentVisionMode}
+        onSelectMode={handleSelectMode} />
 
-        <button className='icon' title={fullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={(evt) => toggleFullscreen(evt as unknown as Event)}>
-          { fullscreen === true ? (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-              <path d="M16.6 38v-6.7H10v-3h9.7V38Zm11.7 0v-9.7H38v3h-6.7V38ZM10 19.6v-3h6.7V10h3v9.7Zm18.4 0V10h3v6.7H38v3Z"/>
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-              <path d="M10 38v-9.7h3V35h6.7v3Zm0-18.4V10h9.7v3H13v6.7ZM28.4 38v-3H35v-6.7h3V38ZM35 19.6V13h-6.7v-3H38v9.7Z"/>
-            </svg>
-          ) }
-          
-        </button>
-      </div>
+      <LUTState processorRef={processorRef} />
     </div>
   </div>
 }
