@@ -2,7 +2,7 @@
   "name": "chromaview",
   "description": "AR web application for viewing the world as if color-blind",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": {
     "name": "Chris Pikul",
     "email": "ChrisPikul510@gmail.com",

@@ -7,6 +7,8 @@
   flex-wrap: nowrap;
   align-items: center;
 
+  @include fluid-type(font-size, 1rem, 2rem);
+
   background-image: var(--random-backdrop);
   background-position: center center;
   background-size: cover;
@@ -17,15 +19,71 @@
 
   &.transition { opacity: 0; }
 
+  #intro-body {
+    padding: 2em 0;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(0.1em);
+    border-radius: 0.25em;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.5);
+  }
+
   p {
     @include fluid-type(margin-left margin-right, 1rem, 5rem);
     margin-bottom: 1em;
 
-    @include fluid-type(font-size, 1rem, 2rem);
+    font-size: 1em;
     color: darken($clr-white, 10%);
 
-    &.sub {
-      @include fluid-type(font-size, 0.6rem, 1rem);
+    em {
+      font-weight: bold;
+    }
+  }
+
+  a {
+    padding: 0.1em 0.2em;
+
+    color: currentColor;
+    font-size: 1em;
+    text-decoration: none;
+    cursor: pointer;
+
+    border-bottom: 1px solid currentColor;
+
+    transition: all 0.2s ease;
+
+    svg {
+      display: inline-block;
+
+      position: relative;
+      top: 0.125em;
+
+      width: 1em;
+      height: 1em;
+      margin-right: 0.25em;
+
+      color: inherit;
+
+      path { fill: currentColor; }
+    }
+
+    &:focus {
+      border: 1px solid currentColor;
+    }
+
+    &:hover {
+      border: none;
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  #footer {
+    margin-top: 7.5rem;
+    font-size: 0.5em;
+
+    #footer-copy {
+      display: block;
+      margin: 2rem;
+      text-align: center;
     }
   }
 }

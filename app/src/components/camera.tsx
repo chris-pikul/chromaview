@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
+import Tutorial from './tutorial';
 import Toolbar from './toolbar';
 import LUTState from './lut-state';
 
@@ -24,6 +25,9 @@ export default function CameraComponent({
 
   // Processor class (singleton if possible)
   const processorRef = useRef<Processor|null>(null);
+
+// FEAT: Starting tutorial
+  const [ showTutorial, setShowTutorial ] = useState<boolean>(true);
 
 // FEAT: Color-blind mode switching
   const [ currentVisionMode, setCurrentVisionMode ] = useState<VisionMode|null>(null);
@@ -95,6 +99,9 @@ export default function CameraComponent({
   return <div id='camera' ref={wrapperRef}>
     <canvas ref={canvasRef} width='320' height='240' />
     <div id='camera-overlay' onClick={cycleVisionMode}>
+      
+      { showTutorial && <Tutorial onHide={() => setShowTutorial(false)}/> }
+
       <Toolbar processorRef={processorRef}
         currentVisionMode={currentVisionMode}
         onSelectMode={handleSelectMode} />
