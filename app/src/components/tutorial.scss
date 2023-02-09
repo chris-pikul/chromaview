@@ -1,0 +1,65 @@
+@use '../palette' as *;
+@use '../utils' as *;
+
+#tutorial {
+  display: block;
+
+  position: fixed;
+  top: 10vmin;
+  right: 10vmin;
+  left: 10vmin;
+
+  max-height: 80vh;
+  padding: 1em;
+
+  @include fluid-type(font-size, 0.75rem, 1.25rem);
+
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(1rem);
+  border-radius: 0.5rem;
+  cursor: pointer;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  transition: opacity 1s ease-out;
+
+  &.fade-out {
+    opacity: 0;
+  }
+
+  h1 {
+    font-size: 1.5em;
+    text-align: center;
+    border-bottom: 1px solid currentColor;
+  }
+
+  h2 {
+    font-size: 1.25em;
+    text-align: center;
+    border-top: 1px solid currentColor;
+  }
+
+  p {
+    margin: 1em 0;
+
+    font-size: 1em;
+
+    svg {
+      display: inline-block;
+      
+      position: relative;
+      top: -0.125em;
+
+      width: 1em;
+      height: 1em;
+      padding: 0.025em;
+
+      font-size: 1em;
+      vertical-align: middle;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 0.1em;
+    }
+  }
+}
