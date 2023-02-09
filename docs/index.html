@@ -20,10 +20,12 @@
         "jonatan-pie-3l3RwQdHRHg-unsplash.jpg",
       ];
       const randomBackdrop = () => (backdrops[Math.trunc(Math.random() * backdrops.length)]);
-      document.documentElement.style.setProperty('--random-backdrop', `url("https://chris-pikul.github.io/chromaview/backgrounds/${randomBackdrop()}")`);
+      const basePath = window.location.origin + window.location.pathname;
+      const imgURL = new URL(`./backgrounds/${randomBackdrop()}`, basePath);
+      document.documentElement.style.setProperty('--random-backdrop', `url("${imgURL.href}")`);
     </script>
-    <script type="module" crossorigin src="/chromaview/assets/index-9c72fa06.js"></script>
-    <link rel="stylesheet" href="/chromaview/assets/index-1adbe4c3.css">
+    <script type="module" crossorigin src="/chromaview/assets/index-bc8c6564.js"></script>
+    <link rel="stylesheet" href="/chromaview/assets/index-275aee98.css">
   </head>
   <body>
     <div id="root"></div>
